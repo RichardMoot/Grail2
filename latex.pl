@@ -27,7 +27,7 @@ latex_nd_output(N,Meaning,rule(Name,A,S,Sem,Rs),Con,Subst,NV) :-
         format('~n%~n% ~p~n%~n~n{\\samepage~n~n\\ensuremath{',[Meaning]),
         write_nd(Rs,Name,A,S,Sem,Con,Subst,NV,0),
         format('}~n~n\\vspace{4mm}~n~n',[]),
-        format('{\bf ~p. }\\mbox{$',[N]),
+        format('\\textbf{ ~p. }\\mbox{$',[N]),
         write_sem(Meaning),
         format('$}~n}~n~n',[]).
 
@@ -45,7 +45,7 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
        ;
        (Name=hyp(_), 
         hypo_scope(yes) ->
-        write(' \bo ')
+        write(' \\bo ')
        ;
         true),
         write_label(A,'',' \\vdash ',Con),
@@ -53,7 +53,7 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
         write_type(S),
        (Name=hyp(N),
         hypo_scope(yes) ->
-        format(' \bc^{~p} ',[N])
+        format(' \\bc^{~p} ',[N])
        ;
         true)
        ).
@@ -62,7 +62,7 @@ write_nd([R|Rs],N,A,S,Sem,Con,Subst,NV,Tab0) :-
         Tab is Tab0 + 3,
        (boring(N,[R|Rs]) ->
         format('~n~*|\\infer{',[Tab]),
-        write_label(A,'',' \vdash ',Con),
+        write_label(A,'',' \\vdash ',Con),
         write_sem(Sem,'',' : ',Subst,NV),
         write_type(S),
         write('}{ \\cdots }')
@@ -121,7 +121,7 @@ write_indices1([X|Xs],Z) :-
 % =
 
 latex_fitch_output(N,Meaning,Max,RFL,FH,Con,Subst,NV) :-
-     format('~n% ~p~n%~n~n\begin{center}~n\begin{tabular}{rll}~n',[Meaning]),
+     format('~n% ~p~n%~n~n\\begin{center}~n\\begin{tabular}{rll}~n',[Meaning]),
      reverse(RFL,[],FL),
      write_fitch(FL,[],Max,FH,Con,Subst,NV),
      format('~n\\end{tabular}~n\\end{center}~n\\vspace{4mm}~n\\textbf{ ~p. }\\mbox{$',[N]),
@@ -154,7 +154,7 @@ write_fitch([N0-frule(Name,A,T,Sem,Rs0)|Rest],Ind0,Max,FH,Con,Subst,NV) :-
         write_sem(Sem,'-','',Subst,NV),
         write(' $ & $'),
         write_fitch_rule_name(Name,Rs0,Max,FH),
-        write('$ \\[-2.2ex]'),nl,
+        write('$ \\\\[-2.2ex]'),nl,
         write_fitch(Rest,Ind,Max,FH,Con,Subst,NV).
 
 update_indent(hyp(N)   ,Ind,[N|Ind]) :- !.
@@ -290,7 +290,7 @@ write_list_of_labels1([],Label) :-
 write_list_of_labels1([Label|Labels],Label0) :-
         write(' $ '),
         write_label(Label0,1,[]),
-        write(' $ \\ '),nl,
+        write(' $ \\\\ '),nl,
         write_list_of_labels1(Labels,Label).
 
 % = write_label
@@ -488,7 +488,7 @@ write_sem(drs(V,C),_) :-
         !,
         format('\\mbox{~n\\begin{tabular}{|l|} \\hline~n',[]),
         write_list_of_vars(V),
-        format(' \\ \\hline~n',[]),
+        format(' \\\\ \\hline~n',[]),
         write_list_of_conds(C),
         format(' \\end{tabular}~n}~n',[]).
 
@@ -551,7 +551,7 @@ write_sem(appl(X,Y),_) :-
         !,
         write('('),
         write_sem(X,1),
-        write(' \\  '),
+        write(' \\,  '),
         write_sem(Y,1),
         write(')').
 
