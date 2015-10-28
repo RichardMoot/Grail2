@@ -1,0 +1,4 @@
+#define lines50_width 4
+#define lines50_height 4
+static unsigned char gray50_bits[] = {
+   0x0a, 0x0a, 0x0a, 0x0a};
