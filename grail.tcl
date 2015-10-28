@@ -322,10 +322,12 @@ proc set_cursor {cursor1 cursor2} {
 
 proc write_ps {canvas dir dfg bg} {
     if {! [info exists texoutdir]} {
-       if [info exists env(GRAIL_TEXOUT_DIR)] {
+	if {[info exists env(GRAIL_TEXOUT_DIR)]} {
           set texoutdir $env(GRAIL_TEXOUT_DIR)
-       } else {
-          set texoutdir [pwd]
+	} elseif {[file exists [pwd]/tex]} {
+	    set texoutdir [pwd]/tex
+	} else {
+	    set texoutdir [pwd]
        }
    }
    set filename [tk_getSaveFile -initialdir $dir \
@@ -363,17 +365,19 @@ if [info exists env(GRAIL_FRAGMENTS_DIR)] {
     }
 }
 
-if [info exists env(GRAIL_TEXOUT_DIR)] {
+if {[info exists env(GRAIL_TEXOUT_DIR)]} {
     set texoutdir $env(GRAIL_TEXOUT_DIR)
-    } else {
+} elseif {[file exists [pwd]/tex]} {
+    set texoutdir [pwd]/tex
+} else {
     set texoutdir [pwd]
-    }
+}
 
-if [info exists env(GRAIL_EXTENSIONS_DIR)] {
-   set extensiondir $env(GRAIL_EXTENSIONS_DIR)
-   } else {
-   set extensiondir [pwd]
-   }
+if {[info exists env(GRAIL_EXTENSIONS_DIR)]} {
+    set extensiondir $env(GRAIL_EXTENSIONS_DIR)
+} else {
+    set extensiondir [pwd]
+}
 
 # ---------------
 

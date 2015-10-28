@@ -811,10 +811,10 @@ postscript :-
 	append("mv proofs1.ps ",PSS,MVS),
 	name(MV,MVS),
 	tex_out_dir(Dir),
-	working_directory(OldDir,Dir),
+	current_directory(OldDir,Dir),
 	always_succeed(shell('dvips -t landscape proofs1.dvi')),
 	always_succeed(shell(MV)),
-	working_directory(_,OldDir)
+	current_directory(_,OldDir)
        ;
 	   true
        ).
@@ -855,9 +855,9 @@ xdvi_post :-
          format('~n\\end{tabular}~n\\end{document}~n',[]),
          told,
          tex_out_dir(Dir),
-         working_directory(OldDir,Dir),
+         current_directory(OldDir,Dir),
          always_succeed(shell('latex post.tex > /dev/null; xdvi -thorough post &')),
-         working_directory(_,OldDir).
+         current_directory(_,OldDir).
 
 xdvi_lex :-
          findall(lex(A,B,C),(lex(A,B,C),
@@ -868,9 +868,9 @@ xdvi_lex :-
          format('~n\\end{tabular}~n\\end{document}~n',[]),
          told,
          tex_out_dir(Dir),
-         working_directory(OldDir,Dir),
+         current_directory(OldDir,Dir),
          always_succeed(shell('latex lex.tex > /dev/null; xdvi -thorough lex &')),
-         working_directory(_,OldDir).
+         current_directory(_,OldDir).
 
 xdvi_sent :-
          findall(example(A,B),(example(A,B0),
@@ -881,9 +881,9 @@ xdvi_sent :-
          format('~n\end{tabular}~n\end{document}~n',[]),
          told,
          tex_out_dir(Dir),
-         working_directory(OldDir,Dir),
+         current_directory(OldDir,Dir),
          always_succeed(shell('latex exa.tex > /dev/null; xdvi -thorough exa &')),
-         working_directory(_,OldDir).
+         current_directory(_,OldDir).
 
 write_sent([]).
 write_sent([example(A0,B)|Rest]) :-
@@ -910,12 +910,12 @@ example_deriv_status(R,R,' \\Rightarrow ').
 
 make_clean :-
          tex_out_dir(Dir),
-         working_directory(OldDir,Dir),
+         current_directory(OldDir,Dir),
          always_succeed(shell('/usr/bin/rm -f eg.tex proofs1.dvi proofs1.aux proofs1.log proofs1.ps texput.log')),
          always_succeed(shell('/usr/bin/rm -f post.tex post.dvi post.ps post.aux post.log')),
          always_succeed(shell('/usr/bin/rm -f lex.tex lex.dvi lex.ps lex.aux lex.log')),
          always_succeed(shell('/usr/bin/rm -f exa.tex exa.dvi exa.ps exa.aux exa.log')),
-         working_directory(_,OldDir).
+         current_directory(_,OldDir).
 
 tex_updated.
 
@@ -925,7 +925,7 @@ tex_updated.
 %	true
 %      ;
 %        tex_out_dir(Dir),
-%        working_directory(OldDir,Dir),
+%        current_directory(OldDir,Dir),
 %	absolute_file_name('eg.tex',EG),
 %	absolute_file_name('proofs1.dvi',P1),
 %        ( file_exists(EG,write) ->
@@ -937,7 +937,7 @@ tex_updated.
 %                       } else {
 %                       return 0
 %                       }',Return),Return="1"), 
-%        working_directory(_,OldDir),
+%        current_directory(_,OldDir),
 %        Return = "1"
 %      ).
 
@@ -974,15 +974,15 @@ add_geometry(C0,Ext,C) :-
 xdvi :-
      retex,
      tex_out_dir(Dir),
-     working_directory(OldDir,Dir),
+     current_directory(OldDir,Dir),
      always_succeed((preview_command(C0,Ext),add_geometry(C0,Ext,C),shell(C))),
-     working_directory(_,OldDir).
+     current_directory(_,OldDir).
 
 /* latex */
 
 latex :- 
       tex_out_dir(Dir),
-      working_directory(OldDir,Dir),
+      current_directory(OldDir,Dir),
 	( file_exists('eg.tex',read) ->
 	    latex_command(LaTeX),
 	    name(LaTeX,LaTeXS),
@@ -992,4 +992,4 @@ latex :-
 	;
 	    format('~n{Error: Couldn''t open file eg.tex!}~n',[])
 	),
-      working_directory(_,OldDir).
+      current_directory(_,OldDir).
