@@ -2484,6 +2484,7 @@ safe_call(Pred) :-
 	/* check whether predicate F/A is defined */ 
 	functor(Aux,F,A),
 	predicate_property(Aux, _),
+	!,
 	call(Pred).
 
 
