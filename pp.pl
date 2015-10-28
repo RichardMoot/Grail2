@@ -27,14 +27,6 @@ portray(X:Y-Z) :-
         write(' - '),
         print(Z).
 
-portray(findall(X,Y,Z)) :-
-        !,
-       (var(Z) ->
-        format('findall(~p): ~p',[X,Y])
-       ;
-        format('findall(~p): ~p~n',[X,Y]),
-        portray_list(Z)).
-
 portray(one(X)) :- !,print(X),write('(1)').
 portray(two(X)) :- !,print(X),write('(2)').
 
