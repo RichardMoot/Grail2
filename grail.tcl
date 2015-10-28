@@ -346,7 +346,7 @@ proc write_ps {canvas dir dfg bg} {
 
 # reset counters
 
-set latexfmt dvi
+set latexfmt pdf
 set solutionsfound 0
 set labelcount 0
 set totallinks 0

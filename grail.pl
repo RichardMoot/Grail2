@@ -1767,22 +1767,31 @@ check_file_id(I,File) :-
        skip_line,
        skip_line,
        get14(List),
-     ( List = [37,32,33,108,97,98,101,108,115,32,118,CVer0,46,CRel0]
-     ;
+  (
+	/* Grail 0/Grail 1 file */       
+       List = [37,32,33,108,97,98,101,108,115,32,118,CVer0,46,CRel0]
+  ;
+       /* Grail 2 file */
        List = [37,32,33,103,114,97,105,108,32,118,CVer0,46,CRel0,_]
-     ),
+  ;
+       /* Grail 3 file */
+       List = [37,32,33,103,114,97,105,108,32,CVer0,46,CRel0,_,_]
+  ),
        seen,
        !,
        Ver0 is CVer0-48,
        Rel0 is CRel0-48,
-     ( Ver0<1 ->
+  (
+       Ver0 < 1
+   ->
        tcl_eval(I,format('dialog .d {Old File Format} {File "~w" was created by an old version of Grail.} warning 1 {Continue} {Cancel}',[File]),"0")
      ;
-       Rel0<0 ->
+       Rel0 < 0
+   ->
        tcl_eval(I,format('dialog .d {Old File Format} {File "~w" was created by an old release of Grail.} warning 1 {Continue} {Cancel}',[File]),"0")
      ;
        true
-     ),
+   ),
        check_predicates(I,File).
 
 check_file_id(I,File) :-
@@ -2466,11 +2475,13 @@ numbervars_post(p(_,A,B),N0,N) :-
 
 numbervars_post(_,N,N).
 
-% = safe_call
+% = safe_call(:Pred)
 %
+% as call/1, but fails when Pred is undefined (instead of throwing an exception).
 
 safe_call(Pred) :-
 	functor(Pred,F,A),
+	/* check whether predicate F/A is defined */ 
 	functor(Aux,F,A),
 	predicate_property(Aux, _),
 	call(Pred).
