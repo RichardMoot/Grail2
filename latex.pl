@@ -364,10 +364,37 @@ write_pros_var(N) :-
         pros_var_name(V,Name),
         format('\\textrm{~p}_{~p}',[Name,I]).
 
+pros_var_label(N, Label) :-
+        V is N mod 4,
+        I is N // 4,
+        pros_var_name(V,Name),
+	name(I, List),
+	unicode_subscripts(List, Name, Label).
+	
+
 pros_var_name(0,p).
 pros_var_name(1,q).
 pros_var_name(2,r).
 pros_var_name(3,s).
+
+
+unicode_subscripts([], Label, Label).
+unicode_subscripts([I|Is], Label0, Label) :-
+	subscript_index(I, Label1),
+	atom_concat(Label0, Label1, Label2),
+	unicode_subscripts(Is, Label2, Label).
+
+subscript_index(48, '\\u2080').
+subscript_index(49, '\\u2081').
+subscript_index(50, '\\u2082').
+subscript_index(51, '\\u2083').
+subscript_index(52, '\\u2084').
+subscript_index(53, '\\u2085').
+subscript_index(54, '\\u2086').
+subscript_index(55, '\\u2087').
+subscript_index(56, '\\u2088').
+subscript_index(57, '\\u2089').
+
 
 % ===========================================================
 

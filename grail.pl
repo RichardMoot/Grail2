@@ -818,8 +818,10 @@ select_sublabel([N|Ns],Label0,Label) :-
 % =
 
 paint_label(Pos-A,Int,Num,X0,X,Y0,Y,XOff,_,t(MidB,B2)) :-
-      (A='$VAR'(_) -> Tag = numvar ; Tag = word),
-       tcl_eval(Int,format('fontWidget .rewrite.c create text ~w ~w -tags {node ~w b0 t~w} -anchor w -font $pnfont -text "~p"',[X0,Y0,Tag,Num,A]),Item),
+	(A='$VAR'(Num0) ->
+		 Tag = numvar,
+		 pros_var_label(Num0, Label) ; Tag = word, Label = A),
+       tcl_eval(Int,format('fontWidget .rewrite.c create text ~w ~w -tags {node ~w b0 t~w} -anchor w -font $pnfont -text "~p"',[X0,Y0,Tag,Num,Label]),Item),
        tcl_eval(Int,format('.rewrite.c bbox ~s',[Item]),BBox),
        quadruple(Int,BBox,B1,B2,X1,Y),
       ( show_lp_numbers(yes),
@@ -928,8 +930,10 @@ paint_label_rd(Pos-A,Int,Num,X0,X,Y0,Y,P0,P,XOff,_,t(MidB,B2)) :-
 	; precedes(P0,Pos) -> P = Pos, Fill = black
 	; P = P0,	Fill = '$grail_dfg'
 	),
-      (A='$VAR'(_) -> Tag = numvar ; Tag = word),
-       tcl_eval(Int,format('fontWidget .rewrite.c create text ~w ~w -font $pnfont -fill ~w -tags {node ~w b0 t~w} -anchor w -text "~p"',[X0,Y0,Fill,Tag,Num,A]),Item),
+	(A='$VAR'(Num0) ->
+		 Tag = numvar,
+		 pros_var_label(Num0, Label) ; Tag = word, Label = A),
+       tcl_eval(Int,format('fontWidget .rewrite.c create text ~w ~w -font $pnfont -fill ~w -tags {node ~w b0 t~w} -anchor w -text "~p"',[X0,Y0,Fill,Tag,Num,Label]),Item),
        tcl_eval(Int,format('.rewrite.c bbox ~s',[Item]),BBox),
        quadruple(Int,BBox,B1,B2,X1,Y),
      ( show_lp_numbers(yes),
