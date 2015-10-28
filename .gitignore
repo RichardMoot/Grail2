@@ -1,8 +1,12 @@
 eg.tex
+texput.log
+proofs1.aux
+proofs1.log
+proofs1.pdf
 tex/eg.tex
 tex/proofs1.dvi
 tex/proofs1.ps
 tex/proofs1.pdf
 tex/proofs1.aux
 tex/proofs1.log
-
+tex/texput.log

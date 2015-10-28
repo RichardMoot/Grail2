@@ -107,7 +107,7 @@
 %:- prolog_flag(unknown,_,fail).
 %:- prolog_flag(syntax_errors,_,fail).
 
-:- format('~n========================~n= Welcome to Grail 2.0 =~n========================~nRelease: 24-10-2000~n~n',[]).
+:- format('~n==========================~n= Welcome to Grail 2.0.1 =~n==========================~nRelease: 28-10-2015~n~n',[]).
 
 :- use_module(library(system)).
 
@@ -166,7 +166,7 @@ grail :-
        example_sentences(I),
        tcl_eval(I,'source options.tcl',_),
        default_options,
-       set_dvi_output,
+       set_pdf_output,
        tcl_eval(I,'set xdvisize "800x600"',_),
        tk_main_loop,
        my_tcl_delete(I),
@@ -1355,10 +1355,16 @@ example_sentences(I) :-
        example_sentences1(Exs,0,_N,I).
 
 example_sentences1([],N,N,_).
-example_sentences1([example(_,_,Str,_)|Rest],N0,N,I) :-
-       tcl_eval(I,format('.input.sent insert end {~s}',[Str]),_),
-       N1 is N0+1,
-       example_sentences1(Rest,N1,N,I).
+example_sentences1([Sent|Sentences],N0,N,I) :-
+	example_sentences2(Sent, I),
+	N1 is N0+1,
+	example_sentences1(Sentences,N1,N,I).
+
+example_sentences2(example(_,_,Str,_), I) :-
+	tcl_eval(I,format('.input.sent insert end {~s}',[Str]),_).
+example_sentences2(example(Str,_), I) :-
+	tcl_eval(I,format('.input.sent insert end {~s}',[Str]),_).
+
 
 get_memo(Memo) :-
        my_tk_interpreter(I),
@@ -1746,6 +1752,7 @@ load_new_fragment(String) :-
        retractall(query_db(_,_)),
        retractall(query_db(_,_,_)),
        retractall(query_db(_,_,_,_)),
+       retractall(example(_,_,_,_)),
        [File],
        tcl_eval(I,format('set fl_nm_t [file rootname [file tail ~s]]',[String]),_),
        tcl_eval(I,'if {$fl_nm_t == {}} {\n\

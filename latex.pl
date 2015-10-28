@@ -2,6 +2,8 @@
 % LaTeX stuff
 % ==========================================================
 
+:- use_module(library(process)).
+
 % ==========================================================
 % Top Level
 % ==========================================================
@@ -45,7 +47,7 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
        ;
        (Name=hyp(_), 
         hypo_scope(yes) ->
-        write(' \\bo ')
+        write(' [ ')
        ;
         true),
         write_label(A,'',' \\vdash ',Con),
@@ -53,7 +55,7 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
         write_type(S),
        (Name=hyp(N),
         hypo_scope(yes) ->
-        format(' \\bc^{~p} ',[N])
+        format(' ]^{~p} ',[N])
        ;
         true)
        ).
@@ -856,7 +858,7 @@ xdvi_post :-
          told,
          tex_out_dir(Dir),
          current_directory(OldDir,Dir),
-         always_succeed(shell('latex post.tex > /dev/null; xdvi -thorough post &')),
+         always_succeed(shell('pdflatex post.tex > /dev/null; open post.pdf &')),
          current_directory(_,OldDir).
 
 xdvi_lex :-
@@ -869,7 +871,7 @@ xdvi_lex :-
          told,
          tex_out_dir(Dir),
          current_directory(OldDir,Dir),
-         always_succeed(shell('latex lex.tex > /dev/null; xdvi -thorough lex &')),
+         always_succeed(shell('pdflatex lex.tex > /dev/null; open lex.pdf &')),
          current_directory(_,OldDir).
 
 xdvi_sent :-
@@ -882,7 +884,7 @@ xdvi_sent :-
          told,
          tex_out_dir(Dir),
          current_directory(OldDir,Dir),
-         always_succeed(shell('latex exa.tex > /dev/null; xdvi -thorough exa &')),
+         always_succeed(shell('pdflatex exa.tex > /dev/null; open exa.pdf &')),
          current_directory(_,OldDir).
 
 write_sent([]).
@@ -911,13 +913,29 @@ example_deriv_status(R,R,' \\Rightarrow ').
 make_clean :-
          tex_out_dir(Dir),
          current_directory(OldDir,Dir),
-         always_succeed(shell('/usr/bin/rm -f eg.tex proofs1.dvi proofs1.aux proofs1.log proofs1.ps texput.log')),
-         always_succeed(shell('/usr/bin/rm -f post.tex post.dvi post.ps post.aux post.log')),
-         always_succeed(shell('/usr/bin/rm -f lex.tex lex.dvi lex.ps lex.aux lex.log')),
-         always_succeed(shell('/usr/bin/rm -f exa.tex exa.dvi exa.ps exa.aux exa.log')),
+	 delete_files(['eg.tex', 'proofs1.dvi', 'proofs1.aux', 'proofs1.log', 'proofs1.ps', 'texput.log']),
+         delete_files(['post.tex', 'post.dvi', 'post.ps', 'post.aux', 'post.log']),
+         delete_files(['lex.tex', 'lex.dvi', 'lex.ps', 'lex.aux', 'lex.log']),
+         delete_files(['exa.tex', 'exa.dvi', 'exa.ps', 'exa.aux', 'exa.log']),
          current_directory(_,OldDir).
 
 tex_updated.
+
+delete_files([]).
+delete_files([F|Fs]) :-
+	delete_if_exists(F),
+        delete_files(Fs).
+
+
+delete_if_exists(F) :-
+   (	
+	file_exists(F, write)
+   ->
+	delete(F)
+   ;
+        true
+   ).
+	
 
 %tex_updated :-
 %	my_tk_interpreter(I),
@@ -957,9 +975,14 @@ set_pdf_output :-
 	retractall(latex_command(_)),
 	assert(latex_command(pdflatex)),
 	retractall(preview_command(_,_)),
-	assert(preview_command(acroread,"pdf")).
+	assert(preview_command('open proofs1.pdf',"pdf")).
 
 add_geometry(C0,Ext,C) :-
+   (
+	latex_command(pdflatex)
+   ->
+        C = C0
+  ;			    
 	'xdvi initialsize'(IX),
 	name(C0,NC0),
 	append(NC0," -geometry ",NC1),
@@ -967,7 +990,8 @@ add_geometry(C0,Ext,C) :-
 	append(NC2,"+0+0 proofs1.",NC3),
 	append(NC3,Ext,NC4),
 	append(NC4," &",NC),
-	name(C,NC).
+	name(C,NC)
+   ).
 
 /* xdvi */
 
@@ -983,13 +1007,18 @@ xdvi :-
 latex :- 
       tex_out_dir(Dir),
       current_directory(OldDir,Dir),
-	( file_exists('eg.tex',read) ->
+      absolute_file_name('eg.tex', EG, [relative_to(Dir)]),
+	( file_exists(EG,read) ->
 	    latex_command(LaTeX),
-	    name(LaTeX,LaTeXS),
-	    append(LaTeXS," proofs1.tex | egrep '^\\!.*$'; echo 'LaTeX ready.' &",CommandS),
-	    name(Command,CommandS), 
-            always_succeed(shell(Command))
+	    process_create(path(LaTeX), [file('proofs1.tex')], [cwd(Dir)])
+%	    process_create(path(LaTeX), [file('proofs1.tex'), ' |  egrep {^\\!.*$}'])
+%	    name(LaTeX,LaTeXS),
+%	    append(LaTeXS," proofs1.tex | egrep '^\\!.*$'; echo 'LaTeX ready.' &",CommandS),
+%	    name(Command,CommandS),
+%	    format('~N~s~n', [CommandS]),
+%            always_succeed(shell(Command))
 	;
 	    format('~n{Error: Couldn''t open file eg.tex!}~n',[])
 	),
-      current_directory(_,OldDir).
+	current_directory(_,OldDir).
+
