@@ -58,8 +58,7 @@ portray(select_atom(A,vertex(N,_,_),_,_)) :- !,write('== select_atom
 =='),
     nl,print(N),write(':'),print(A),nl.
 
-portray(select_conj(A,vertex(N,_,_),_,_)) :- !,write('== select_conj
-=='), nl, print(N),write(':'),print(A),nl.
+portray(select_conj(A,vertex(N,_,_),_,_)) :- !,write('== select_conj=='), nl, print(N),write(':'),print(A),nl.
 portray(ord_union(_,_,_,New)) :- 
         var(New) -> print(New) 
        ;
@@ -146,7 +145,7 @@ portray(p(I,X,Y)) :-
 portray(dr(I,X,Y)) :-
     write('('),print(X),write(' /'),write(I),write(' '),print(Y),write(')').
 portray(dl(I,X,Y)) :-
-    write('('),print(X),write(' \'),write(I),write(' '),print(Y),write(')').
+    write('('),print(X),write(' \\'),write(I),write(' '),print(Y),write(')').
 portray(l(I,X)) :-
     write('<'),write(I),write('('),print(X),write(')').
 portray(r(I,X)) :-

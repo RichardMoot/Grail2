@@ -96,15 +96,15 @@
 
 :- use_module(library(tcltk)).
 
-:- abolish(user:portray_message/2).
+%:- abolish(user:portray_message/2).
 %user:portray_message(error,_).
 %user:portray_message(informational,_).
 %user:portray_message(warning,_).
 
 :- prolog_flag(character_escapes,_,off).
 :- prolog_flag(redefine_warnings,_,off).
-:- prolog_flag(unknown,_,fail).
-:- prolog_flag(syntax_errors,_,fail).
+%:- prolog_flag(unknown,_,fail).
+%:- prolog_flag(syntax_errors,_,fail).
 
 :- format('~n========================~n= Welcome to Grail 2.0 =~n========================~nRelease: 24-10-2000~n~n',[]).
 
@@ -1633,64 +1633,61 @@ save_fragment_as(String) :-
        /* title */
        format('% ~60c~n% ~s~n% ~60c~n% !grail v~w.~w ~n',[61,TrimmedS,61,V,R]),
        /* init */
-       write('
-:- abolish(lazy_unpack/1).
-:- abolish(lazy_dr/1).
-:- abolish(lazy_dl/1).
-:- abolish(transparent_dia/1).
-:- abolish(transparent/1).
-:- abolish(continuous_dia/1).
-:- abolish(continuous/1).
-:- abolish(external_dia/1).
-:- abolish(external/1).
-:- abolish(postulate/3).
-:- abolish(postulate1/3).
-:- abolish(macro/2).
-:- abolish(lex/3).
-:- abolish(example/2).
+       format(':- abolish(lazy_unpack/1).~n', []),
+       format(':- abolish(lazy_dr/1).~n', []),
+       format(':- abolish(lazy_dl/1).~n', []),
+       format(':- abolish(transparent_dia/1).~n', []),
+       format(':- abolish(transparent/1).~n', []),
+       format(':- abolish(continuous_dia/1).~n', []),
+       format(':- abolish(continuous/1).~n', []),
+       format(':- abolish(external_dia/1).~n', []),
+       format(':- abolish(external/1).~n', []),
+       format(':- abolish(postulate/3).~n', []),
+       format(':- abolish(postulate1/3).~n', []),
+       format(':- abolish(macro/2).~n', []),
+       format(':- abolish(lex/3).~n', []),
+       format(':- abolish(example/2).~2n', []),
+       format(':- dynamic lazy_unpack/1,lazy_dr/1,lazy_dl/1.~n', []),
+       format(':- dynamic transparent_dia/1,transparent/1.~n', []),
+       format(':- dynamic continuous_dia/1,continuous/1.~n', []),
+       format(':- dynamic external_dia/1,external/1,atomic_formula/1.~n', []),
+       format(':- dynamic postulate/3,postulate1/3,special_string/2.~n', []),
+       format(':- dynamic macro/2,lex/3,example/2.~2n', []),
+       format('/* postulates */~2n', []),
+       format('% ~60c~n% Postulates~n% ~60c~2n',[61,61]),
 
-:- dynamic lazy_unpack/1,lazy_dr/1,lazy_dl/1.
-:- dynamic transparent_dia/1,transparent/1.
-:- dynamic continuous_dia/1,continuous/1.
-:- dynamic external_dia/1,external/1,atomic_formula/1.
-:- dynamic postulate/3,postulate1/3,special_string/2.
-:- dynamic macro/2,lex/3,example/2.'),
+       format('% = structural postulates~n',[]),
+       listing(postulate/3),
+       listing(postulate1/3),
+       
+       format('~n% = lazy evaluation~n',[]),
+       listing(lazy_dl/1),
+       listing(lazy_dr/1),
+       listing(lazy_unpack/1),
 
-        /* postulates */
+       format('~n% = transparency~n',[]),
+       listing(transparent/1),
+       listing(transparent_dia/1),
+	
+       format('~n% = continuity~n',[]),
+       listing(continuous/1),
+       listing(continuous_dia/1),
 
-        format('~2n% ~60c~n% Postulates~n% ~60c~2n',[61,61]),
-        format('% = structural postulates~n',[]),
-        listing(postulate/3),
-        listing(postulate1/3),
-
-        format('~n% = lazy evaluation~n',[]),
-        listing(lazy_dl/1),
-        listing(lazy_dr/1),
-        listing(lazy_unpack/1),
-
-        format('~n% = transparency~n',[]),
-        listing(transparent/1),
-        listing(transparent_dia/1),
-
-        format('~n% = continuity~n',[]),
-        listing(continuous/1),
-        listing(continuous_dia/1),
-
-        format('~n% = non internal modes~n',[]),
-        listing(external/1),
-        listing(external_dia/1),
+       format('~n% = non internal modes~n',[]),
+       listing(external/1),
+       listing(external_dia/1),
 
         /* macros */
 
-        format('~n% ~60c~n% Macros~n% ~60c~2n',[61,61]),
-        format('% = macro(Form,Replacement)~n',[]),
-        listing(macro/2),
+       format('~n% ~60c~n% Macros~n% ~60c~2n',[61,61]),
+       format('% = macro(Form,Replacement)~n',[]),
+       listing(macro/2),
 
         /* lexicon */
 
-        format('~n% ~60c~n% Lexicon~n% ~60c~2n',[61,61]),
-        format('% = lex(Pros,Formula,Sem)~n',[]),
-        listing(lex/3),
+       format('~n% ~60c~n% Lexicon~n% ~60c~2n',[61,61]),
+       format('% = lex(Pros,Formula,Sem)~n',[]),
+       listing(lex/3),
 
         format('~n% = atomic_formula(Formula)~n',[]),
         listing(atomic_formula/1),
@@ -2594,8 +2591,8 @@ wait_rewrite(Interp,Result) :-
                         set rewritestate "waiting"
                         tkwait variable rewritestate
                         deactivate .rewrite
-                        .rewrite.c dtag node
-                        set rewritestate',Result),
+                        .rewrite.c dtag node', _),
+       tcl_eval(Interp,'set rewritestate', Result),
        ( Result = "cancel" ->
          tcl_eval(Interp,'.rewrite.exit configure -state disabled',_),
          raise_exception('Cancel')
