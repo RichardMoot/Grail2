@@ -12,11 +12,11 @@ create_postulate_window :-
 post_listbox(List,W,I) :-
        post_listbox1(List,0,0,MinX,0,MaxX,20,Y,W,I),
        Width is -MinX+MaxX+20,
-       tcl_eval(I,format('foreach i [~w.c find withtag pname] {
-                  ~w.c itemconfigure $i -anchor e
-                  set crd [~w.c coords $i]
-                  set ycrd [lindex $crd 1]
-                  ~w.c coords $i ~w $ycrd
+       tcl_eval(I,format('foreach i [~w.c find withtag pname] {\n\
+                  ~w.c itemconfigure $i -anchor e\n\
+                  set crd [~w.c coords $i]\n\
+                  set ycrd [lindex $crd 1]\n\
+                  ~w.c coords $i ~w $ycrd\n\
                   }',[W,W,W,W,MaxX]),_),
        tcl_eval(I,format('~w.c configure -width [expr ~w]',[W,Width]),_),
        tcl_eval(I,format('~w.c configure -scrollregion "[expr ~w-10] 9 [expr ~w+10] [expr ~w-10]"',[W,MinX,MaxX,Y]),_).
@@ -82,26 +82,26 @@ reverse_postulate :-
 flip_postulate :-
        my_tk_interpreter(I),
        'post list'(Ps0),
-       tcl_eval(I,'set tags [.post.c gettags post_bar]
-                   set list_ind [lsearch -regexp $tags {^(post_n)[0-9]+$}]
-                   set itemno_temp [lindex $tags $list_ind]
+       tcl_eval(I,'set tags [.post.c gettags post_bar]\n\
+                   set list_ind [lsearch -regexp $tags {^(post_n)[0-9]+$}]\n\
+                   set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 6 end]',NumS),
        NumS \== [],
        number_chars(Num,NumS),
        flip_item_num(Num,Ps0,Ps,Fill),
-       tcl_eval(I,format('set mybbox [.post.c bbox post_bar]
-                   set x1 [lindex $mybbox 0]
-                   set y1 [lindex $mybbox 1]
-                   set x2 [lindex $mybbox 2]
-                   set y2 [lindex $mybbox 3]
-                   set boxed_items [.post.c find enclosed $x1 $y1 $x2 $y2] 
-                   foreach i $boxed_items {
-                   set itags [.post.c gettags $i]
-                   if {[lsearch $itags post_bar] == -1} {
-                   .post.c itemconfigure $i -fill ~w
-                   }
-                   if {[lsearch $itags oval] != -1} {
-                   .post.c itemconfigure $i -outline ~w
+       tcl_eval(I,format('set mybbox [.post.c bbox post_bar]\n\
+                   set x1 [lindex $mybbox 0]\n\
+                   set y1 [lindex $mybbox 1]\n\
+                   set x2 [lindex $mybbox 2]\n\
+                   set y2 [lindex $mybbox 3]\n\
+                   set boxed_items [.post.c find enclosed $x1 $y1 $x2 $y2]\n\
+                   foreach i $boxed_items {\n\
+                   set itags [.post.c gettags $i]\n\
+                   if {[lsearch $itags post_bar] == -1} {\n\
+                   .post.c itemconfigure $i -fill ~w\n\
+                   }\n\
+                   if {[lsearch $itags oval] != -1} {\n\
+                   .post.c itemconfigure $i -outline ~w\n\
                    }}',[Fill,Fill]),_),
        retractall(postulate(_,_,_)),
        retractall(postulate1(_,_,_)),
@@ -119,9 +119,9 @@ flip_postulate :-
 
 delete_postulate :-
        my_tk_interpreter(I),
-       tcl_eval(I,'set tags [.post.c gettags post_bar]
-                   set list_ind [lsearch -regexp $tags {^(post_n)[0-9]+$}]
-                   set itemno_temp [lindex $tags $list_ind]
+       tcl_eval(I,'set tags [.post.c gettags post_bar]\n\
+                   set list_ind [lsearch -regexp $tags {^(post_n)[0-9]+$}]\n\
+                   set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 6 end]',NumS),
        NumS \== [],
        tokenize_term(NumS,Num),
@@ -148,18 +148,18 @@ delete_postulate1(Num) :-
 
 edit_postulate :-
        my_tk_interpreter(I),
-       tcl_eval(I,'if {[winfo exists .postedit]} {
-                   wm deiconify .postedit
-                   raise .postedit
-                   } else {
-                   prolog create_postedit_window
+       tcl_eval(I,'if {[winfo exists .postedit]} {\n\
+                   wm deiconify .postedit\n\
+                   raise .postedit\n\
+                   } else {\n\
+                   prolog create_postedit_window\n\
                    }',_),
        'post list'(Ps),
        retractall('current post'(_)),
        retractall('unmod post'(_)),
-      ( tcl_eval(I,'set tags [.post.c gettags post_bar]
-                    set list_ind [lsearch -regexp $tags {^(post_n)[0-9]+$}]
-                    set itemno_temp [lindex $tags $list_ind]
+      ( tcl_eval(I,'set tags [.post.c gettags post_bar]\n\
+                    set list_ind [lsearch -regexp $tags {^(post_n)[0-9]+$}]\n\
+                    set itemno_temp [lindex $tags $list_ind]\n\
                     set cur_sel [string range $itemno_temp 6 end]',NumS),
         NumS \== [] ->
         number_chars(Num,NumS),
@@ -238,16 +238,15 @@ paint_label(A,Int,Num,Tags,X0,X,Y0,Y,t(MidB,B2)) :-
 
 paste_var(Var) :-
        my_tk_interpreter(I),
-       tcl_eval(I,format('
-                   set tags [.postedit.f0.c gettags postselectbox]
-                   set list_ind [lsearch -regexp $tags {^(ant|suc)[012]+$}]
-                   set path_temp [lindex $tags $list_ind]
-                   set path [string range $path_temp 3 end]
-                   set as [string range $path_temp 0 2]
-                   if {$path != {}} {
-                   set prologcall ""
-                   append prologcall "paste_var1($as,$path," {~k)} 
-                   prolog $prologcall
+       tcl_eval(I,format('set tags [.postedit.f0.c gettags postselectbox]\n\
+                   set list_ind [lsearch -regexp $tags {^(ant|suc)[012]+$}]\n\
+                   set path_temp [lindex $tags $list_ind]\n\
+                   set path [string range $path_temp 3 end]\n\
+                   set as [string range $path_temp 0 2]\n\
+                   if {$path != {}} {\n\
+                   set prologcall ""\n\
+                   append prologcall "paste_var1($as,$path," {~k)}\n\
+                   prolog $prologcall\n\
                    }',[Var]),_).
 
 paste_var1(AS,Num,Var) :-
@@ -356,21 +355,21 @@ copy_post(AS,Num) :-
 
 select_post_var(' * ',AS,Num) :-
        my_tk_interpreter(I),
-       tcl_eval(I,format('.postedit.f0.c delete postselectbox
-                   set path ~w~w
-                   set tags $path
-                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]
-                   set branches [lindex $tags $list_ind2]
-                   set box [.postedit.f0.c bbox $path]
-                   set boxl [expr [lindex $box 0] -1]
-                   set boxr [expr [lindex $box 2] +1]
-                   set boxu [expr [lindex $box 1] -1]
-                   set boxd [expr [lindex $box 3] +1]
-                   set s_tags {}
-                   lappend s_tags postselectbox $branches $path
-           .postedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags
-           .postedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags
-           .postedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags
+       tcl_eval(I,format('.postedit.f0.c delete postselectbox\n\
+                   set path ~w~w\n\
+                   set tags $path\n\
+                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]\n\
+                   set branches [lindex $tags $list_ind2]\n\
+                   set box [.postedit.f0.c bbox $path]\n\
+                   set boxl [expr [lindex $box 0] -1]\n\
+                   set boxr [expr [lindex $box 2] +1]\n\
+                   set boxu [expr [lindex $box 1] -1]\n\
+                   set boxd [expr [lindex $box 3] +1]\n\
+                   set s_tags {}\n\
+                   lappend s_tags postselectbox $branches $path\n\
+           .postedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags\n\
+           .postedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags\n\
+           .postedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags\n\
            .postedit.f0.c create line $boxr $boxu $boxr $boxd -tags $s_tags',[AS,Num]),_).
        
 select_post_var(zip(_,A),AS,Num0) :-
@@ -387,20 +386,20 @@ select_post_var(p(_,_,B),AS,Num0) :-
 
 select_post(AS,Num) :-
        my_tk_interpreter(I),
-       tcl_eval(I,format('.postedit.f0.c delete postselectbox
-                   set path ~w~w
-                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]
-                   set branches [lindex $tags $list_ind2]
-                   set box [.postedit.f0.c bbox $path]
-                   set boxl [expr [lindex $box 0] -1]
-                   set boxr [expr [lindex $box 2] +1]
-                   set boxu [expr [lindex $box 1] -1]
-                   set boxd [expr [lindex $box 3] +1]
-                   set s_tags {}
-                   lappend s_tags postselectbox $branches $path
-           .postedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags
-           .postedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags
-           .postedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags
+       tcl_eval(I,format('.postedit.f0.c delete postselectbox\n\
+                   set path ~w~w\n\
+                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]\n\
+                   set branches [lindex $tags $list_ind2]\n\
+                   set box [.postedit.f0.c bbox $path]\n\
+                   set boxl [expr [lindex $box 0] -1]\n\
+                   set boxr [expr [lindex $box 2] +1]\n\
+                   set boxu [expr [lindex $box 1] -1]\n\
+                   set boxd [expr [lindex $box 3] +1]\n\
+                   set s_tags {}\n\
+                   lappend s_tags postselectbox $branches $path\n\
+           .postedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags\n\
+           .postedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags\n\
+           .postedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags\n\
            .postedit.f0.c create line $boxr $boxu $boxr $boxd -tags $s_tags',[AS,Num]),_).
 
 
@@ -428,9 +427,9 @@ store_postulate(I) :-
        sahlqvist(I,A,B),
        tcl_eval(I,'set postulatename',PS),         
        name(PN,PS),
-       tcl_eval(I,'set tags [.postedit.f0.c gettags arrow]
-                   set list_ind [lsearch -regexp $tags {^(dir_)[a-z]+$}]
-                   set itemno_temp [lindex $tags $list_ind]
+       tcl_eval(I,'set tags [.postedit.f0.c gettags arrow]\n\
+                   set list_ind [lsearch -regexp $tags {^(dir_)[a-z]+$}]\n\
+                   set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_dir [string range $itemno_temp 4 end]',CurDir),
        CurDir \== [],
       (CurDir = "lr" -> assert_postulate(I,A,B,PN)
@@ -445,8 +444,7 @@ store_postulate(I) :-
 
 assert_postulate(I,A,B,PN) :-
       (normalize1(A,B) ->
-       tcl_eval(I,'dialog .d {Postulate Exists} {This postulate is already a consequence of other postulates in this fragment. 
-Do you wish to store it anyway?} warning 1 Store Cancel',"0")
+       tcl_eval(I,'dialog .d {Postulate Exists} {This postulate is already a consequence of other postulates in this fragment. Do you wish to store it anyway?} warning 1 Store Cancel',"0")
      ; true),
        melt(postulate(A,B,PN),Postulate),
        assertz(Postulate),
@@ -485,8 +483,7 @@ repeating(I,A,B) :-
 more_constrs(I,A,B) :-
        count_constrs(A,0,N0),
        count_constrs(B,0,N),
-     ( N>N0 -> tcl_eval(I,'dialog .d {Possible Nontermination} {The postulate you tried to store has more label constructors on the left hand side than on the right hand side. 
-The theorem prover may fail to terminate if you store this postulate.} warning 1 Store Cancel',"0")
+     ( N>N0 -> tcl_eval(I,'dialog .d {Possible Nontermination} {The postulate you tried to store has more label constructors on the left hand side than on the right hand side. The theorem prover may fail to terminate if you store this postulate.} warning 1 Store Cancel',"0")
      ;
        true
      ).
@@ -548,9 +545,9 @@ add_new_var(['$VAR'(N0)|Rest0],Rest,N1,N) :-
 % ====================================================================
 
 test_post :-
-       findall(postulate(A,B,C),postulate(A,B,C),L),
+       findall(postulate(A,B,C),safe_call(postulate(A,B,C)),L),
        map_is_valid_postulate(L),
-       findall(postulate(A,B,C),postulate1(A,B,C),L1),
+       findall(postulate(A,B,C),safe_call(postulate1(A,B,C)),L1),
        map_is_valid_postulate(L1).
 
 map_is_valid_postulate([]).
@@ -566,19 +563,18 @@ is_valid_postulate(A,B,C) :-
 	 my_tk_interpreter(I),
          retractall(postulate(A,B,C)),
 	 retractall(postulate1(A,B,C)),
-         tcl_eval(I,'if {[winfo exists .postedit]} {
-                     wm deiconify .postedit
-                     raise .postedit
-                     } else {
-                     prolog create_postedit_window
+         tcl_eval(I,'if {[winfo exists .postedit]} {\n\
+                     wm deiconify .postedit\n\
+                     raise .postedit\n\
+                     } else {\n\
+                     prolog create_postedit_window\n\
                      }',_),
          make_postulate(A,B,C,X),
 	 numbervars(X,0,_),
          retractall('current entry'(_)),
          assert('current entry'(X)),
          paint_post(X),
-         tcl_eval(I,format('dialog .d {Postulate Error} {The postulate\
-         "~w" is not in a valid format.} error 0 "Delete"',[C]),_)
+         tcl_eval(I,format('dialog .d {Postulate Error} {The postulate "~w" is not in a valid format.} error 0 "Delete"',[C]),_)
        ).
 
 is_postulate_term(X) :-

@@ -16,9 +16,9 @@ lexicon :-
 
 delete_lex_entry :-
        my_tk_interpreter(I),
-       tcl_eval(I,'set tags [.lex.c gettags lex_bar]
-                   set list_ind [lsearch -regexp $tags {^(lex_item)[0-9]+$}]
-                   set itemno_temp [lindex $tags $list_ind]
+       tcl_eval(I,'set tags [.lex.c gettags lex_bar]\n\
+                   set list_ind [lsearch -regexp $tags {^(lex_item)[0-9]+$}]\n\
+                   set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 8 end]',NumS),
        NumS \== [],
        number_chars(Num,NumS),
@@ -44,18 +44,18 @@ new_lex_entry :-
 
 edit_lex_entry :-
        my_tk_interpreter(I),
-       tcl_eval(I,'if {[winfo exists .lexedit]} {
-                   wm deiconify .lexedit
-                   raise .lexedit
-                   } else {
-                   prolog create_lexedit_window
+       tcl_eval(I,'if {[winfo exists .lexedit]} {\n\
+                   wm deiconify .lexedit\n\
+                   raise .lexedit\n\
+                   } else {\n\
+                   prolog create_lexedit_window\n\
                    }',_),
        'current lex'(Lex),
        retractall('current entry'(_)),
        retractall('unmod entry'(_)),
-      (tcl_eval(I,'set tags [.lex.c gettags lex_bar]
-                   set list_ind [lsearch -regexp $tags {^(lex_item)[0-9]+$}]
-                   set itemno_temp [lindex $tags $list_ind]
+      (tcl_eval(I,'set tags [.lex.c gettags lex_bar]\n\
+                   set list_ind [lsearch -regexp $tags {^(lex_item)[0-9]+$}]\n\
+                   set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 8 end]',NumS),
        NumS \== [] ->
        number_chars(Num,NumS),
@@ -291,13 +291,11 @@ add_b_index(SIdx) :-
        assert(lazy_dr(Idx)),
        assert(external(Idx)),
        my_tk_interpreter(Int),
-       tcl_eval(Int,format('if {[winfo exists .postedit.f3.index.m]} {
+       tcl_eval(Int,format('if {[winfo exists .postedit.f3.index.m]} {\n\
                             .postedit.f3.index.m add command -label {~p} -command {prolog select_binary_p(~w)}}',[Idx,Idx]),_),
-       tcl_eval(Int,format('if {[winfo exists .lexedit.f3.index.m]} {
+       tcl_eval(Int,format('if {[winfo exists .lexedit.f3.index.m]} {\n\
                             .lexedit.f3.index.m add command -label {~p} -command {prolog select_binary(~w)}}',[Idx,Idx]),_),
-       tcl_eval(Int,'if {[winfo exists .an]} {
-                        prolog update_analysis_window
-                        }',_)
+       tcl_eval(Int,'if {[winfo exists .an]} { prolog update_analysis_window }',_)
       ).
 
 add_u_index(SIdx) :-
@@ -310,13 +308,11 @@ add_u_index(SIdx) :-
        assert(lazy_unpack(Idx)),
        assert(external_dia(Idx)),
        my_tk_interpreter(Int),
-       tcl_eval(Int,format('if {[winfo exists .postedit.f4.index.m]} {
+       tcl_eval(Int,format('if {[winfo exists .postedit.f4.index.m]} {\n\
                             .postedit.f4.index.m add command -label {~p} -command {prolog select_unary_p(~w)}}',[Idx,Idx]),_),
-       tcl_eval(Int,format('if {[winfo exists .lexedit.f4.index.m]} {
+       tcl_eval(Int,format('if {[winfo exists .lexedit.f4.index.m]} {\n\
                             .lexedit.f4.index.m add command -label {~p} -command {prolog select_unary(~w)}}',[Idx,Idx]),_),
-       tcl_eval(Int,'if {[winfo exists .an]} {
-                        prolog update_analysis_window
-                        }',_)
+       tcl_eval(Int,'if {[winfo exists .an]} { prolog update_analysis_window }',_)
       ).
 
 add_literal(LitS) :-
@@ -339,29 +335,27 @@ add_literal(LitS) :-
 set_literal(Lit) :-
        my_tk_interpreter(I),
        tcl_eval(I,format('set literal {~p}',[Lit]),_),
-       tcl_eval(I,format('
-                   set tags [.lexedit.f0.c gettags selectbox]
-                   set list_ind [lsearch -regexp $tags {^(t)[012]+$}]
-                   set path_temp [lindex $tags $list_ind]
-                   set path [string range $path_temp 1 end]
-                   if {$path != {}} {
-                   set prologcall ""
-                   append prologcall "paste_atom1($path," {lit(~k))} 
-                   prolog $prologcall
+       tcl_eval(I,format('set tags [.lexedit.f0.c gettags selectbox]\n\
+                   set list_ind [lsearch -regexp $tags {^(t)[012]+$}]\n\
+                   set path_temp [lindex $tags $list_ind]\n\
+                   set path [string range $path_temp 1 end]\n\
+                   if {$path != {}} {\n\
+                   set prologcall ""\n\
+                   append prologcall "paste_atom1($path," {lit(~k))}\n\
+                   prolog $prologcall\n\
                    }',[Lit]),_).
 
 set_macro(Macro) :-
        my_tk_interpreter(I),
        macro_expand(Macro,Form),
-       tcl_eval(I,format('
-                   set tags [.lexedit.f0.c gettags selectbox]
-                   set list_ind [lsearch -regexp $tags {^(t)[012]+$}]
-                   set path_temp [lindex $tags $list_ind]
-                   set path [string range $path_temp 1 end]
-                   if {$path != {}} {
-                   set prologcall ""
-                   append prologcall "paste_atom1($path," {~k)} 
-                   prolog $prologcall
+       tcl_eval(I,format('set tags [.lexedit.f0.c gettags selectbox]\n\
+                   set list_ind [lsearch -regexp $tags {^(t)[012]+$}]\n\
+                   set path_temp [lindex $tags $list_ind]\n\
+                   set path [string range $path_temp 1 end]\n\
+                   if {$path != {}} {\n\
+                   set prologcall ""\n\
+                   append prologcall "paste_atom1($path," {~k)}\n\
+                   prolog $prologcall\n\
                    }',[Form]),_).
 
 store_macro(Num,LitS) :-
@@ -371,8 +365,7 @@ store_macro(Num,LitS) :-
        num_to_list(Num,List),
        copy_form(List,Form0,Form),
       (select_var(Form,0) ->
-       tcl_eval(I,'dialog .d {Formula Error} {The edited formula\
-      is underspecified} error 0 {Cancel}',_)
+       tcl_eval(I,'dialog .d {Formula Error} {The edited formula is underspecified} error 0 {Cancel}',_)
       ;
       (Lit = '' ->
        tcl_eval(I,'dialog .d {No Name Given} {You must specify a name for the macro.} error 0 Cancel',"666")
@@ -439,21 +432,21 @@ delete(Num) :-
 
 select_var(' * ',Num) :-
        my_tk_interpreter(I),
-       tcl_eval(I,format('.lexedit.f0.c delete selectbox
-                   set path t~w
-                   set tags $path
-                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]
-                   set branches [lindex $tags $list_ind2]
-                   set box [.lexedit.f0.c bbox $path]
-                   set boxl [expr [lindex $box 0] -1]
-                   set boxr [expr [lindex $box 2] +1]
-                   set boxu [expr [lindex $box 1] -1]
-                   set boxd [expr [lindex $box 3] +1]
-                   set s_tags {}
-                   lappend s_tags selectbox $branches $path
-           .lexedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags
-           .lexedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags
-           .lexedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags
+       tcl_eval(I,format('.lexedit.f0.c delete selectbox\n\
+                   set path t~w\n\
+                   set tags $path\n\
+                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]\n\
+                   set branches [lindex $tags $list_ind2]\n\
+                   set box [.lexedit.f0.c bbox $path]\n\
+                   set boxl [expr [lindex $box 0] -1]\n\
+                   set boxr [expr [lindex $box 2] +1]\n\
+                   set boxu [expr [lindex $box 1] -1]\n\
+                   set boxd [expr [lindex $box 3] +1]\n\
+                   set s_tags {}\n\
+                   lappend s_tags selectbox $branches $path\n\
+           .lexedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags\n\
+           .lexedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags\n\
+           .lexedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags\n\
            .lexedit.f0.c create line $boxr $boxu $boxr $boxd -tags $s_tags',[Num]),_).
 
 select_var(box(_,A),Num0) :-
@@ -490,20 +483,20 @@ select_var(dr(_,_,B),Num0) :-
 
 select_form(Num) :-
        my_tk_interpreter(I),
-       tcl_eval(I,format('.lexedit.f0.c delete selectbox
-                   set path t~w
-                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]
-                   set branches [lindex $tags $list_ind2]
-                   set box [.lexedit.f0.c bbox $path]
-                   set boxl [expr [lindex $box 0] -1]
-                   set boxr [expr [lindex $box 2] +1]
-                   set boxu [expr [lindex $box 1] -1]
-                   set boxd [expr [lindex $box 3] +1]
-                   set s_tags {}
-                   lappend s_tags selectbox $branches $path
-           .lexedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags
-           .lexedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags
-           .lexedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags
+       tcl_eval(I,format('.lexedit.f0.c delete selectbox\n\
+                   set path t~w\n\
+                   set list_ind2 [lsearch -regexp $tags {^(b)[0123456789]+$}]\n\
+                   set branches [lindex $tags $list_ind2]\n\
+                   set box [.lexedit.f0.c bbox $path]\n\
+                   set boxl [expr [lindex $box 0] -1]\n\
+                   set boxr [expr [lindex $box 2] +1]\n\
+                   set boxu [expr [lindex $box 1] -1]\n\
+                   set boxd [expr [lindex $box 3] +1]\n\
+                   set s_tags {}\n\
+                   lappend s_tags selectbox $branches $path\n\
+           .lexedit.f0.c create line $boxl $boxu $boxr $boxu -tags $s_tags\n\
+           .lexedit.f0.c create line $boxl $boxd $boxr $boxd -tags $s_tags\n\
+           .lexedit.f0.c create line $boxl $boxd $boxl $boxu -tags $s_tags\n\
            .lexedit.f0.c create line $boxr $boxu $boxr $boxd -tags $s_tags',[Num]),_).
 
 
@@ -655,7 +648,7 @@ listbox_item(box(J,A),N,Br,X0,X,Y0,Y,W,I) :-
 % ====================================================================
 
 test_lex:-
-       findall(lex(V,X,W),(lex(V,X0,W),
+       findall(lex(V,X,W),(safe_call(lex(V,X0,W)),
                            macro_expand(X0,X)),L),
        map_is_formula(L).
 
@@ -672,23 +665,23 @@ map_is_formula([lex(V,X0,W)|Xs]) :-
        ( Answ = "0" ->
          true
        ;
-         tcl_eval(I,'if {[winfo exists .lexedit]} {
-                     wm deiconify .lexedit
-                     raise .lexedit
-                     } else {
-                     prolog create_lexedit_window
+         tcl_eval(I,'if {[winfo exists .lexedit]} {\n\
+                     wm deiconify .lexedit\n\
+                     raise .lexedit\n\
+                     } else {\n\
+                     prolog create_lexedit_window\n\
                      }',_),
          make_formula(X0,X),
          retractall('current entry'(_)),
          assert('current entry'(X)),
-         tcl_eval(I,format('set itempros {~q}
-                            set itemsem {~q}
-                            update idletasks
+         tcl_eval(I,format('set itempros {~q}\n\
+                            set itemsem {~q}\n\
+                            update idletasks\n\
                             update',[V,W]),_),
          paint_entry(V:X-W),
-         tcl_eval(I,format('set itempros {~q}
-                            set itemsem {~q}
-                            update idletasks
+         tcl_eval(I,format('set itempros {~q}\n\
+                            set itemsem {~q}\n\
+                            update idletasks\n\
                             update',[V,W]),_) 
        )
      ),

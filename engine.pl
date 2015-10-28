@@ -49,19 +49,19 @@ tex(X,Goal,File,Num,_) :-
 
 tex(_,_,_,_,N) :-
      my_tk_interpreter(Interp),
-     tcl_eval(Interp,'set runningstate "done"
-                      set rewritestate "done"
-                      set_cursor left_ptr left_ptr
-                      .stats.c dtag node
-                      grab release .stats
-                      if {[winfo exists .stats.ind]} {
-                      .stats.ind delete bar
-                      }
-                      if {[winfo exists .rewrite]} {
-                      .rewrite.exit configure -state disabled
-                      grab release .rewrite
-                      }
-                      .stats.exit configure -state disabled
+     tcl_eval(Interp,'set runningstate "done"\n\
+                      set rewritestate "done"\n\
+                      set_cursor left_ptr left_ptr\n\
+                      .stats.c dtag node\n\
+                      grab release .stats\n\
+                      if {[winfo exists .stats.ind]} {\n\
+                      .stats.ind delete bar\n\
+                      }\n\
+                      if {[winfo exists .rewrite]} {\n\
+                      .rewrite.exit configure -state disabled\n\
+                      grab release .rewrite\n\
+                      }\n\
+                      .stats.exit configure -state disabled\n\
                       focus $oldFocus',_),
      /* Screen */
      write_solutions(N),
@@ -140,8 +140,8 @@ init_db(X,G0,Meaning0,S0,Subst,N,File,SNum,[vertex(0,Bs,Ps)|Es0],Es,Rules0,H0,C0
       tcl_eval(Interp,format('.stats.c configure -height [expr (-~w)+30+(~w * (~w/4))]',[Y,Num,XOff]),_),
       tcl_eval(Interp,format('.stats.c configure -scrollregion "0 [expr ~w-10-(~w*(~w/4))] [expr ~w+32] 20"',[Y,Num,XOff,X1]),_),
       tcl_eval(Interp,format('.stats.c lower [.stats.c create rectangle 0 [expr ~w-10-(~w*(~w/4))] [expr ~w+32] 20 -fill $grail_bg -outline $grail_bg]',[Y,Num,XOff,X1]),_),
-      tcl_eval(Interp,'if {$interactive !="auto"} {
-                       wm geometry .stats {}
+      tcl_eval(Interp,'if {$interactive !="auto"} {\n\
+                       wm geometry .stats {}\n\
                        }',_),
       tcl_eval(Interp,'incr lookups',Lookup),
       format1('~nLookup: ~s~n',[Lookup]),
@@ -418,14 +418,13 @@ prove([G0|Gs0],G,[H0|Hs0],H,EstL0,Max,XOff) :-
       atom_formula(Atom0,Form),
       tcl_eval(Interp,format('detailedtext $runningstate "Linking ~w"',[Form]),_),
       find_conj_ids(Atom0,Gs1,Ids),
-      tcl_eval(Interp,format('
-        focus .stats.c
-        set tags [.stats.c gettags v~w]
-        set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]
-        set nums [lindex $tags $list_ind]
-        set axs [split $nums n]
-        .stats.c addtag node withtag n[lindex $axs 1]
-        .stats.c addtag node withtag n[lindex $axs 2]
+      tcl_eval(Interp,format('focus .stats.c\n\
+        set tags [.stats.c gettags v~w]\n\
+        set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]\n\
+        set nums [lindex $tags $list_ind]\n\
+        set axs [split $nums n]\n\
+        .stats.c addtag node withtag n[lindex $axs 1]\n\
+        .stats.c addtag node withtag n[lindex $axs 2]\n\
         .stats.c delete v~w',[Id0,Id0]),_),
       get_estimate(Atom0,f(EA,EM,_EN0),EstL0,EstL),
       select_conj_ids(Ids,Id0,Atom0,Vertex2,Atom1,Vertex3,
@@ -460,7 +459,7 @@ prove([G0|Gs0],G,[H0|Hs0],H,EstL0,Max,XOff) :-
 
 select_atom_id(Id,Atom0,vertex(N,As,Ps),Atom1,vertex(N,Bs,Qs),G0,G,H0,H) :-
        duo_select(vertex(N,As0,Ps),vertex(N,Bs0,Qs),G0,G,H0,H),
-       duo_select(Atom0,Atom1,As0,As,Bs0,Bs), 
+       duo_select(Atom0,Atom1,As0,As,Bs0,Bs),
        atom_id(Atom0,Id),
        !.
 
@@ -474,14 +473,13 @@ select_atom_id1(Id,Atom0,vertex(N,As,Ps),Atom1,vertex(N,Bs,Qs),G0,G,H0,H) :-
 
 select_conj_ids([],Id0,_,_,_,_,_,_,_,_,_,_,_,_,_,_) :-
        my_tk_interpreter(Interp),
-         tcl_eval(Interp,format('
-      focus .stats.c
-      set tags [.stats.c gettags v~w]
-      set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]
-      set nums [lindex $tags $list_ind]
-      set axs [split $nums n]
-      .stats.c addtag node withtag n[lindex $axs 1]
-      .stats.c addtag node withtag n[lindex $axs 2]
+         tcl_eval(Interp,format('focus .stats.c\n\
+      set tags [.stats.c gettags v~w]\n\
+      set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]\n\
+      set nums [lindex $tags $list_ind]\n\
+      set axs [split $nums n]\n\
+      .stats.c addtag node withtag n[lindex $axs 1]\n\
+      .stats.c addtag node withtag n[lindex $axs 2]\n\
       .stats.c delete v~w',[Id0,Id0]),_),
        fail.
 
@@ -489,29 +487,28 @@ select_conj_ids([Id1|Ids0],Id0,Atom0,vertex(N,As,Ps),Atom1,vertex(N,Bs,Ps),G0,G,
        my_tk_interpreter(Interp),
        atom_formula(Atom0,Form),
        tcl_eval(Interp,format('detailedtext $runningstate "Linking ~p"',[Form]),_),
-         tcl_eval(Interp,format('
-      focus .stats.c
-      set tags [.stats.c gettags v~w]
-      set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]
-      set nums [lindex $tags $list_ind]
-      set axs [split $nums n]
-      .stats.c addtag node withtag n[lindex $axs 1]
-      .stats.c addtag node withtag n[lindex $axs 2]
+         tcl_eval(Interp,format('focus .stats.c\n\
+      set tags [.stats.c gettags v~w]\n\
+      set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]\n\
+      set nums [lindex $tags $list_ind]\n\
+      set axs [split $nums n]\n\
+      .stats.c addtag node withtag n[lindex $axs 1]\n\
+      .stats.c addtag node withtag n[lindex $axs 2]\n\
       .stats.c delete v~w',[Id0,Id0]),_),
-       tcl_eval(Interp,format('.stats.c delete selectbox
-                        set tags [.stats.c gettags [.stats.c find withtag "n~w"]]
-                        set list_ind [lsearch -regexp $tags {^(n)[0-9]+$}]
-                        set path [lindex $tags $list_ind]
-                        set box [.stats.c bbox $path]
-                        set boxl [expr [lindex $box 0] -1]
-                        set boxr [expr [lindex $box 2] +1]
-                        set boxu [expr [lindex $box 1] -1]
-                        set boxd [expr [lindex $box 3] +1]
-                        set s_tags {}
-                        lappend s_tags selectbox $path
-                        .stats.c create line $boxl $boxu $boxr $boxu -tags $s_tags
-                        .stats.c create line $boxl $boxd $boxr $boxd -tags $s_tags
-                        .stats.c create line $boxl $boxd $boxl $boxu -tags $s_tags
+       tcl_eval(Interp,format('.stats.c delete selectbox\n\
+                        set tags [.stats.c gettags [.stats.c find withtag "n~w"]]\n\
+                        set list_ind [lsearch -regexp $tags {^(n)[0-9]+$}]\n\
+                        set path [lindex $tags $list_ind]\n\
+                        set box [.stats.c bbox $path]\n\
+                        set boxl [expr [lindex $box 0] -1]\n\
+                        set boxr [expr [lindex $box 2] +1]\n\
+                        set boxu [expr [lindex $box 1] -1]\n\
+                        set boxd [expr [lindex $box 3] +1]\n\
+                        set s_tags {}\n\
+                        lappend s_tags selectbox $path\n\
+                        .stats.c create line $boxl $boxu $boxr $boxu -tags $s_tags\n\
+                        .stats.c create line $boxl $boxd $boxr $boxd -tags $s_tags\n\
+                        .stats.c create line $boxl $boxd $boxl $boxu -tags $s_tags\n\
                         .stats.c create line $boxr $boxu $boxr $boxd -tags $s_tags',[Id0]),_),
        /* draw white box around possible conjugates */
        box_ids([Id1|Ids0],Interp,white),
@@ -547,62 +544,55 @@ select_conj_ids([Id1|Ids0],Id0,Atom0,vertex(N,As,Ps),Atom1,vertex(N,Bs,Ps),G0,G,
         ; IdS = Id, IdE = Id0),
          my_tk_interpreter(Interp),
          tcl_eval(Interp,'incr totallinks',_),
-         tcl_eval(Interp,format('
-      focus .stats.c
-      .stats.c delete selectbox
-      set tags [.stats.c gettags v~w]
-      set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]
-      set nums [lindex $tags $list_ind]
-      set axs [split $nums n]
-      .stats.c addtag node withtag n[lindex $axs 1]
-      .stats.c addtag node withtag n[lindex $axs 2]
+         tcl_eval(Interp,format('focus .stats.c\n\
+      .stats.c delete selectbox\n\
+      set tags [.stats.c gettags v~w]\n\
+      set list_ind [lsearch -regexp $tags {^(n)[0-9]+(n)[0-9]+$}]\n\
+      set nums [lindex $tags $list_ind]\n\
+      set axs [split $nums n]\n\
+      .stats.c addtag node withtag n[lindex $axs 1]\n\
+      .stats.c addtag node withtag n[lindex $axs 2]\n\
       .stats.c delete v~w',[Id0,Id0]),_),
-         tcl_eval(Interp,format('
-     focus .stats.c
-     set box1 [.stats.c bbox n~w]
+         tcl_eval(Interp,format('focus .stats.c\n\
+     set box1 [.stats.c bbox n~w]\n\
      set box2 [.stats.c bbox n~w]',[Id0,Id]),_),
-         tcl_eval(Interp,format('
-     set skip [expr ~w/2]
-     set box1x [expr ([lindex $box1 0] + [lindex $box1 2])/2]
-     set box2x [expr ([lindex $box2 0] + [lindex $box2 2])/2]
-     set box1y [expr [lindex $box1 1]+2]
-     set box2y [expr [lindex $box2 1]+2]
-     set maxy [expr $box1y]
-     for {set x ~w} {$x <= ~w} {incr x} {
-     if {$height($x) < $maxy} {
-     set maxy $height($x)
-     }}
-     set maxy [expr $maxy-$skip]
-     set continue "yes"
-     if {$box1x < $box2x} {
-         set boxl $box1x
-         set boxr $box2x
-     } else {
-        set boxl $box2x
-        set boxr $box1x
-     }
-     while {$continue == "yes"} {
-     set continue "no"
-     foreach i [.stats.c find withtag top] {
-     set boxi [.stats.c bbox $i]
-     set boxil [expr [lindex $boxi 0]]
-     set boxir [expr [lindex $boxi 2]]
-     set boxit [expr [lindex $boxi 1]+2]
-     if {($boxir > $boxl) && ($boxr > $boxil)  && abs($boxit - $maxy) < $skip} {
-        set maxy [expr $maxy-$skip]
-        set continue "yes"
-     }
-     }}
+         tcl_eval(Interp,format('set skip [expr ~w/2]\n\
+     set box1x [expr ([lindex $box1 0] + [lindex $box1 2])/2]\n\
+     set box2x [expr ([lindex $box2 0] + [lindex $box2 2])/2]\n\
+     set box1y [expr [lindex $box1 1]+2]\n\
+     set box2y [expr [lindex $box2 1]+2]\n\
+     set maxy [expr $box1y]\n\
+     for {set x ~w} {$x <= ~w} {incr x} {\n\
+     if {$height($x) < $maxy} {\n\
+     set maxy $height($x)\n\
+     }}\n\
+     set maxy [expr $maxy-$skip]\n\
+     set continue "yes"\n\
+     if {$box1x < $box2x} {\n\
+         set boxl $box1x\n\
+         set boxr $box2x\n\
+     } else {\n\
+        set boxl $box2x\n\
+        set boxr $box1x\n\
+     }\n\
+     while {$continue == "yes"} {\n\
+     set continue "no"\n\
+     foreach i [.stats.c find withtag top] {\n\
+     set boxi [.stats.c bbox $i]\n\
+     set boxil [expr [lindex $boxi 0]]\n\
+     set boxir [expr [lindex $boxi 2]]\n\
+     set boxit [expr [lindex $boxi 1]+2]\n\
+     if {($boxir > $boxl) && ($boxr > $boxil)  && abs($boxit - $maxy) < $skip} {\n\
+        set maxy [expr $maxy-$skip]\n\
+        set continue "yes"\n\
+     }\n\
+     }}\n\
      ',[XOff,IdS,IdE]),_),     
-         tcl_eval(Interp,format('
-    .stats.c dtag n~w node
+         tcl_eval(Interp,format('.stats.c dtag n~w node\n\
     .stats.c dtag n~w node',[Id0,Id]),_),
-         tcl_eval(Interp,format('
-    .stats.c create line $box1x $box1y $box1x $maxy -tags "ax n~wn~w v~w"',[Id0,Id,Id0]),_),
-         tcl_eval(Interp,format('          
-    .stats.c create line $box2x $box2y $box2x $maxy -tags "ax n~wn~w v~w"',[Id0,Id,Id0]),_),
-         tcl_eval(Interp,format('
-    .stats.c create line $box1x $maxy $box2x $maxy -tags "top ax n~wn~w v~w"',[Id0,Id,Id0]),_),
+         tcl_eval(Interp,format('.stats.c create line $box1x $box1y $box1x $maxy -tags "ax n~wn~w v~w"',[Id0,Id,Id0]),_),
+         tcl_eval(Interp,format('.stats.c create line $box2x $box2y $box2x $maxy -tags "ax n~wn~w v~w"',[Id0,Id,Id0]),_),
+         tcl_eval(Interp,format('.stats.c create line $box1x $maxy $box2x $maxy -tags "top ax n~wn~w v~w"',[Id0,Id,Id0]),_),
       (duo_select(vertex(N,[A|As0],Ps),vertex(N,[B|Bs0],Ps),G0,G,H0,H),
        duo_select(Conj0,Conj1,[A|As0],As,[B|Bs0],Bs),
        atom_id(Conj0,Id),
@@ -626,20 +616,19 @@ find_conj_ids(Atom0,Gs,Ids) :-
                    
 box_ids([],_,_).
 box_ids([N|Ns],Interp,Color) :-
-       tcl_eval(Interp,format('
-                        set tags [.stats.c gettags [.stats.c find withtag "n~w"]]
-                        set list_ind [lsearch -regexp $tags {^(n)[0-9]+$}]
-                        set path [lindex $tags $list_ind]
-                        set box [.stats.c bbox $path]
-                        set boxl [expr [lindex $box 0] -1]
-                        set boxr [expr [lindex $box 2] +1]
-                        set boxu [expr [lindex $box 1] -1]
-                        set boxd [expr [lindex $box 3] +1]
-                        set s_tags {}
-                        lappend s_tags selectbox $path
-                        .stats.c create line $boxl $boxu $boxr $boxu -fill ~w -tags $s_tags
-                        .stats.c create line $boxl $boxd $boxr $boxd -fill ~w -tags $s_tags
-                        .stats.c create line $boxl $boxd $boxl $boxu -fill ~w -tags $s_tags
+       tcl_eval(Interp,format('set tags [.stats.c gettags [.stats.c find withtag "n~w"]]\n\
+                        set list_ind [lsearch -regexp $tags {^(n)[0-9]+$}]\n\
+                        set path [lindex $tags $list_ind]\n\
+                        set box [.stats.c bbox $path]\n\
+                        set boxl [expr [lindex $box 0] -1]\n\
+                        set boxr [expr [lindex $box 2] +1]\n\
+                        set boxu [expr [lindex $box 1] -1]\n\
+                        set boxd [expr [lindex $box 3] +1]\n\
+                        set s_tags {}\n\
+                        lappend s_tags selectbox $path\n\
+                        .stats.c create line $boxl $boxu $boxr $boxu -fill ~w -tags $s_tags\n\
+                        .stats.c create line $boxl $boxd $boxr $boxd -fill ~w -tags $s_tags\n\
+                        .stats.c create line $boxl $boxd $boxl $boxu -fill ~w -tags $s_tags\n\
                         .stats.c create line $boxr $boxu $boxr $boxd -fill ~w -tags $s_tags',[N,Color,Color,Color,Color]),_),
       box_ids(Ns,Interp,Color).
 
@@ -747,14 +736,14 @@ remove_all_divisions2(pos(A,B,Label0,C,D,E),pos(A,B,Label,C,D,E)) :-
 remove_divisions(S0,S) :-
      create_rewrite_window,
      my_tk_interpreter(Interp),
-     tcl_eval(Interp,'if {$rewritestate != "nonstop"} {
-                        if {$eagerl != "auto"} {
-                        set rewritestate $defaultrewrite
-                        } else {
-                        set rewritestate "continue"
-                        }
+     tcl_eval(Interp,'if {$rewritestate != "nonstop"} {\n\
+                        if {$eagerl != "auto"} {\n\
+                        set rewritestate $defaultrewrite\n\
+                        } else {\n\
+                        set rewritestate "continue"\n\
+                        }\n\
                       }',_),
-     tcl_eval(Interp,'update
+     tcl_eval(Interp,'update\n\
                       set rewritestate',Rewrite),
     ((Rewrite = "nonstop";Rewrite = "continue") ->
      display_rd_label(S0,0),
@@ -769,10 +758,10 @@ remove_divisions(S0,S) :-
 
 remove_divisions(_,_) :-
      my_tk_interpreter(Interp),
-     tcl_eval(Interp,'.stats.txt configure -text "Linking"
-                      if {[winfo exists .rewrite]} {
-                      .rewrite.c dtag node
-                      .rewrite.exit configure -state disabled
+     tcl_eval(Interp,'.stats.txt configure -text "Linking"\n\
+                      if {[winfo exists .rewrite]} {\n\
+                      .rewrite.c dtag node\n\
+                      .rewrite.exit configure -state disabled\n\
                       }',_),
      fail.
 
@@ -790,7 +779,7 @@ breadth_star([],N0,[Depth0-Node|F],B,Closed,Interp,Undo,Answer) :-
        tcl_eval(Interp,'incr labelcount',_),
        update_undo(Undo,Interp),
        display_rd_label(Node,1),
-       tcl_eval(Interp,format('if {[winfo exists .rewrite]} {
+       tcl_eval(Interp,format('if {[winfo exists .rewrite]} {\n\
                                .rewrite.text configure -text "Depth: ~w   Queue: ~w"}',[Depth0,N]),_),
        tcl_eval(Interp,'update idletasks',_),
     (wait_rewrite(Interp,Rewrite) ->
@@ -864,24 +853,24 @@ normalize(Start0,Answer) :-
      remove_divisions(Start0,Start),
      create_rewrite_window,
      my_tk_interpreter(Interp),
-     tcl_eval(Interp,'if {$rewritestate != "nonstop"} {
-                      set rewritestate $defaultrewrite
+     tcl_eval(Interp,'if {$rewritestate != "nonstop"} {\n\
+                      set rewritestate $defaultrewrite\n\
                       }',_),
      display_label(Start,0),
      tcl_eval(Interp,'.stats.txt configure -text "Rewriting"',_),
      tcl_eval(Interp,'incr labelgen',_),
      breadth_star1([],1,[1-Start|B],B,node(Start,0,empty,empty),Interp,[],Answer),
      display_label(Answer,0),
-     tcl_eval(Interp,'if {[winfo exists .rewrite]} {
-                      .rewrite.c dtag node
+     tcl_eval(Interp,'if {[winfo exists .rewrite]} {\n\
+                      .rewrite.c dtag node\n\
                       }',_).
 
 normalize(_,_) :-
      my_tk_interpreter(Interp),
-     tcl_eval(Interp,'.stats.txt configure -text "Linking"
-                      if {[winfo exists .rewrite]} {
-                      .rewrite.c dtag node
-                      .rewrite.exit configure -state disabled
+     tcl_eval(Interp,'.stats.txt configure -text "Linking"\n\
+                      if {[winfo exists .rewrite]} {\n\
+                      .rewrite.c dtag node\n\
+                      .rewrite.exit configure -state disabled\n\
                       }',_),
      fail.
 
@@ -892,7 +881,7 @@ breadth_star1([],N0,[Depth0-Node|F],B,Closed,Interp,Undo,Answer) :-
        tcl_eval(Interp,'incr labelcount',_),
        display_label(Node,1),
        update_undo(Undo,Interp),
-       tcl_eval(Interp,format('if {[winfo exists .rewrite]} {
+       tcl_eval(Interp,format('if {[winfo exists .rewrite]} {\n\
                                .rewrite.text configure -text "Depth: ~w   Queue: ~w"}',[Depth0,N]),_),
        tcl_eval(Interp,'update idletasks',_),
     (wait_rewrite(Interp,Rewrite) ->
@@ -1145,14 +1134,10 @@ replace_pos(unpack(I,A0),N,C,unpack(I,A)) :-
      replace_pos(A0,N,C,A).
 
 update_undo([],Interp) :-
-	tcl_eval(Interp,'if {[winfo exists .rewrite]} {
-			 .rewrite.mbar.link.menu entryconfigure 0 -state disabled
-		         }',_).
+	tcl_eval(Interp,'if {[winfo exists .rewrite]} {.rewrite.mbar.link.menu entryconfigure 0 -state disabled}',_).
 
 update_undo([_|_],Interp) :-
-	tcl_eval(Interp,'if {[winfo exists .rewrite]} {
-			 .rewrite.mbar.link.menu entryconfigure 0 -state normal
-		         }',_).
+	tcl_eval(Interp,'if {[winfo exists .rewrite]} {.rewrite.mbar.link.menu entryconfigure 0 -state normal}',_).
 
 	
 % normalize(+Label,+NormalLabel,-PathHead,?PathTail)
@@ -1206,8 +1191,8 @@ breadth_star([],N0,[Node/NodePath|Front],Back,Closed,_NodePath0,RevPath,Interp,A
        N is N0-1,
        tcl_eval(Interp,'incr labelcount',_),
        tcl_eval(Interp,'update',_),
-       tcl_eval(Interp,'if {$runningstate == "cancel"} {
-                        prolog raise_exception(''Cancel'')
+       tcl_eval(Interp,'if {$runningstate == "cancel"} {\n\
+                        prolog raise_exception(''Cancel'')\n\
                         }',_),
        ( check_lp1(Node),
          Answer = Node,
@@ -1230,8 +1215,8 @@ breadth_star1([],N0,[Node/NodePath|Front],Back,Closed,_NodePath0,RevPath,Interp,
        N is N0-1,
        tcl_eval(Interp,'incr labelcount',_),
        tcl_eval(Interp,'update',_),
-       tcl_eval(Interp,'if {$runningstate == "cancel"} {
-                        prolog raise_exception(''Cancel'')
+       tcl_eval(Interp,'if {$runningstate == "cancel"} {\n\
+                        prolog raise_exception(''Cancel'')\n\
                         }',_),
        ( normal(Node),
          Answer = Node, 
@@ -1627,7 +1612,7 @@ found_solution(Meaning,S0,S,N) :-
        format1('~n~n',[]),
        pp_labels(S0,S),
        format1('~n===~n',[]),
-       tcl_eval(Interp,'.stats.c itemconfigure current_ax -fill black
+       tcl_eval(Interp,'.stats.c itemconfigure current_ax -fill black\n\
                         .stats.c dtag current_ax',_),
        tcl_eval(Interp,'.stats.txt configure -text "Found Solution $solutionsfound"',_),
        wait_running1(Interp,_).
@@ -1903,11 +1888,11 @@ select(X,[X|Xs],Xs).
 select(X,[Y|Ys],[Y|Zs]) :-
        select(X,Ys,Zs).
 
-append([],Xs,Xs).
-append([X|Xs],Ys,[X|Zs]) :-
-       append(Xs,Ys,Zs).
+%append([],Xs,Xs).
+%append([X|Xs],Ys,[X|Zs]) :-
+%       append(Xs,Ys,Zs).
 
-member(X,[Y|Ys]) :-
+member1(X,[Y|Ys]) :-
        member1(Ys,Y,X).
 
 member1([],X,X).

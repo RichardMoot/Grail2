@@ -95,14 +95,15 @@
 % 07-08-97 Beta version released for ESSLLI'97
 
 :- use_module(library(tcltk)).
+:- use_module(library(file_systems)).
 
 %:- abolish(user:portray_message/2).
 %user:portray_message(error,_).
 %user:portray_message(informational,_).
 %user:portray_message(warning,_).
 
-:- prolog_flag(character_escapes,_,off).
-:- prolog_flag(redefine_warnings,_,off).
+%:- prolog_flag(character_escapes,_,off).
+%:- prolog_flag(redefine_warnings,_,off).
 %:- prolog_flag(unknown,_,fail).
 %:- prolog_flag(syntax_errors,_,fail).
 
@@ -154,13 +155,13 @@ grail :-
        /* open tk window and save its reference */
        my_tk_new([name('Grail 2.0')],I),
        assert(my_tk_interpreter(I)),
-      ( color_options -> true ; true),
+      ( (predicate_property(color_options, _), color_options) -> true ; true),
        tcl_eval(I,'source grail.tcl',_),
        initialize,
        tcl_eval(I,'prolog assert(tex_out_dir(''$texoutdir''))',_),
        tcl_eval(I,'prolog assert(fragment_dir(''$fragmentdir''))',_),
        tcl_eval(I,'prolog assert(extension_dir(''$extensiondir''))',_),
-       tcl_eval(I,'set runningstate done
+       tcl_eval(I,'set runningstate done\n\
                    set rewritestate done',_),
        example_sentences(I),
        tcl_eval(I,'source options.tcl',_),
@@ -405,12 +406,12 @@ constr(dia,Int,Win,Fill,Num,Tags,X,Y,[L1,D1,R1,U1]) :-
 
 create_proofnet_window :-
        my_tk_interpreter(I),
-       tcl_eval(I,'if {[winfo exists .stats]} then {
-                  wm deiconify .stats
-                  raise .stats
-                  .stats config -cursor left_ptr
-                  } else {
-                  source proofnet.tcl
+       tcl_eval(I,'if {[winfo exists .stats]} then {\n\
+                  wm deiconify .stats\n\
+                  raise .stats\n\
+                  .stats config -cursor left_ptr\n\
+                  } else {\n\
+                  source proofnet.tcl\n\
                   }',_).
 
 % = proof nets
@@ -554,9 +555,7 @@ paint_formula0(box(I,A),Int,Tag,Num0,Num,X0,X,Y0,Y,XOff,YOff,t(MidA,B4)) :-
 paint_connective(LC,Index,Int,Tag,Win,Fill,X,Y,XOff,[C1,C2,C3,C4,MaxX]) :-
        connective(LC,Int,Tag,Win,Fill,X,Y,XOff,[_A1,A2,A3,A4]),
        Skip2 is XOff/4,
-       tcl_eval(Int,format('fontWidget ~w create text [expr ~w+~w] [expr ~w+(~w/2)]\
-       -anchor nw -font $indexfont -text "~p"\
-       -fill ~w -tags {l~w}',[Win,X,Skip2,Y,Skip2,Index,Fill,Tag]),Item1),
+       tcl_eval(Int,format('fontWidget ~w create text [expr ~w+~w] [expr ~w+(~w/2)] -anchor nw -font $indexfont -text "~p" -fill ~w -tags {l~w}',[Win,X,Skip2,Y,Skip2,Index,Fill,Tag]),Item1),
        tcl_eval(Int,format('~w bbox ~s',[Win,Item1]),BBox1),
        quadruple(Int,BBox1,_B1,B2,B3,B4),
        Skip is XOff/3,
@@ -635,14 +634,14 @@ connective(dr,Int,Tag,Win,Fill,X,Y,_,[B1,B2,B3,B4]) :-
 
 create_rewrite_window :-
        my_tk_interpreter(I),
-       tcl_eval(I,'if {[winfo exists .rewrite]} {
-                   wm deiconify .rewrite
-                   raise .rewrite
-                   .rewrite config -cursor left_ptr
-                   } else {
-                   if {$interactive != "auto"} {
-                   source rewrite.tcl
-                   }
+       tcl_eval(I,'if {[winfo exists .rewrite]} {\n\
+                   wm deiconify .rewrite\n\
+                   raise .rewrite\n\
+                   .rewrite config -cursor left_ptr\n\
+                   } else {\n\
+                   if {$interactive != "auto"} {\n\
+                   source rewrite.tcl\n\
+                   }\n\
                    }',_).
 
 % = display_label(+Label,+Flag)
@@ -686,7 +685,6 @@ redraw_label :-
           quadruple(Interp,BBox2,Left2,Bot2,Right2,Top2),
           XOff is max(Right-Left,Right2-Left2),
           YOff is 2*max(Top-Bot,Top2-Bot2),
-
           tcl_eval(Interp,'.rewrite.c delete all',_),
           paint_label(Label,Interp,0,10,X,32,Y,XOff,YOff,_),
 	  update_rewrite_size(Interp,X,Y)
@@ -736,7 +734,7 @@ rewrite_menu(Num) :-
        num_to_list(Num,Pos),
        select_sublabel(Pos,Label0,Label1),
        findall(t('Res',Pos,Label1,Label2),reduce(Label1,Label2),Rs),
-       findall(t(Name,Pos,Label1,Label3),postulate(Label1,Label3,Name),Ps),
+       findall(t(Name,Pos,Label1,Label3),safe_call(postulate(Label1,Label3,Name)),Ps),
        create_popup_menu(Rs,Ps,Num).
 
 rewrite_menus :-
@@ -750,7 +748,7 @@ rewrite_menus([Pos|Rest]) :-
        list_to_num(Pos,0,Num),
        select_sublabel(Pos,Label0,Label1),
        findall(t('Res',Pos,Label1,Label2),reduce(Label1,Label2),Rs),
-       findall(t(Name,Pos,Label1,Label3),postulate(Label1,Label3,Name),Ps),
+       findall(t(Name,Pos,Label1,Label3),safe_call(postulate(Label1,Label3,Name)),Ps),
        length(Rs,LR),
        length(Ps,LP),
        Tot is LR+LP,
@@ -759,7 +757,7 @@ rewrite_menus([Pos|Rest]) :-
      ;
        create_popup_menu(Rs,Ps,Num),
        my_tk_interpreter(Interp),
-       tcl_eval(Interp,'set waitmenu "waiting"
+       tcl_eval(Interp,'set waitmenu "waiting"\n\
                         tkwait variable waitmenu',_),
        rewrite_menus(Rest)
      ).
@@ -771,36 +769,33 @@ list_to_num([X|Xs],N0,N) :-
 
 create_popup_menu(Rs,Ps,Path) :-
        my_tk_interpreter(Interp),
-       tcl_eval(Interp,'if {[winfo exists .popup]} {
-                        destroy .popup
+       tcl_eval(Interp,'if {[winfo exists .popup]} {\n\
+                        destroy .popup\n\
                          }',_),
        tcl_eval(Interp,'menu .popup -tearoff 0',_),
        create_rs_list(Rs,Interp),
        create_ps_list(Ps,Interp),
-       tcl_eval(Interp,format('
-               set list [.rewrite.c coords t~w]
-               if {[llength $list]==4} {
-               set x [expr round([winfo rootx .rewrite.c] + ([lindex $list 2] + [lindex $list 0])/2)]
-               set y [expr round([winfo rooty .rewrite.c] + ([lindex $list 3] + [lindex $list 1])/2)]
-               } else {
-               set x [expr round([winfo rootx .rewrite.c] + [lindex $list 0])]
-               set y [expr round([winfo rooty .rewrite.c] + [lindex $list 1])]
-               }
+       tcl_eval(Interp,format('set list [.rewrite.c coords t~w]\n\
+               if {[llength $list]==4} {\n\
+               set x [expr round([winfo rootx .rewrite.c] + ([lindex $list 2] + [lindex $list 0])/2)]\n\
+               set y [expr round([winfo rooty .rewrite.c] + ([lindex $list 3] + [lindex $list 1])/2)]\n\
+               } else {\n\
+               set x [expr round([winfo rootx .rewrite.c] + [lindex $list 0])]\n\
+               set y [expr round([winfo rooty .rewrite.c] + [lindex $list 1])]\n\
+               }\n\
                tk_popup .popup $x $y',[Path]),_).
 
 create_rs_list([],_).
 create_rs_list([t(Name,Pos,Label1,Label2)|Rs],Interp) :-
-       tcl_eval(Interp,format('.popup add command -label "~w"\
-     -command {prolog {replace_label(~k,~k,~k)}
-               set rewritestate "stepped"
+       tcl_eval(Interp,format('.popup add command -label "~w" -command {prolog {replace_label(~k,~k,~k)}\n\
+               set rewritestate "stepped"\n\
                destroy .popup}',[Name,Pos,Label1,Label2]),_),
        create_rs_list(Rs,Interp).
 
 create_ps_list([],_).
 create_ps_list([t(Name,Pos,Label1,Label2)|Ps],Interp) :-
-       tcl_eval(Interp,format('.popup add command -label "~w"\
-     -command {prolog {replace_label(~k,~k,~k)}
-               set rewritestate "stepped"
+       tcl_eval(Interp,format('.popup add command -label "~w" -command {prolog {replace_label(~k,~k,~k)}\n\
+               set rewritestate "stepped"\n\
                destroy .popup}',[Name,Pos,Label1,Label2]),_),
        create_ps_list(Ps,Interp).
 
@@ -1273,7 +1268,7 @@ create_bars(Interp,B0,Incr,M) :-
 portray_estimate(Interp,Est,Max) :-
        compute_estimate(Est,E),
        Bar is (E*204)//Max,
-       tcl_eval(Interp,format('.stats.ind delete bar
+       tcl_eval(Interp,format('.stats.ind delete bar\n\
                                .stats.ind create rect 0 6 ~w 16 -outline white -fill white -tag bar',[Bar]),_).
 
 est_to_nf(Xs,Zs) :-
@@ -1463,21 +1458,20 @@ save_options :-
        my_tk_interpreter(I),
        absolute_file_name('~/.grail_default_options.pl',DFile),
        tell(DFile),
-       write(':- dynamic unary_semantics/1,latex_output_format/1,eta_long_proofs/1.
-:- dynamic hypo_scope/1,ignore_brackets/1,macro_reduce/1.
-:- dynamic output_expl_brackets/1,output_labels/1,output_semantics/1.
-:- dynamic output_subst_lex_sem/1,output_reduced_sem/1,output_tex_sem/1.
-:- dynamic output_sr/1,collapse_sr/2,show_lp_numbers/1,compact_lex/1.
-
-:- abolish(portray_message).'),nl,
+       write(':- dynamic unary_semantics/1,latex_output_format/1,eta_long_proofs/1.\n\
+:- dynamic hypo_scope/1,ignore_brackets/1,macro_reduce/1.\n\
+:- dynamic output_expl_brackets/1,output_labels/1,output_semantics/1.\n\
+:- dynamic output_subst_lex_sem/1,output_reduced_sem/1,output_tex_sem/1.\n\
+:- dynamic output_sr/1,collapse_sr/2,show_lp_numbers/1,compact_lex/1.\n\
+\n\
+:- abolish(portray_message/2).'),nl,
        listing(portray_message/2),nl,
-       write('% ==========================================================
-% Menu Options
+       write('% ==========================================================\n\
+% Menu Options\n\
 % =========================================================='),nl,nl,
-       write('default_options :-
-       my_tk_interpreter(I),
-       /* menu variables */
-       tcl_eval(I,'''),
+       write('default_options :-\n\
+       my_tk_interpreter(I),\n\
+       /* menu variables */'),
        tcl_eval(I,'set unarysem',UnarySem),
        tcl_eval(I,'set bracketsem',BracketSem),
        tcl_eval(I,'set outputlabels',OutputLabels),
@@ -1491,53 +1485,44 @@ save_options :-
        tcl_eval(I,'set sr',SR),
        tcl_eval(I,'set prologmessages',PrologMessages),
        tcl_eval(I,'set compactlex',CompactLex),
-       format('set unarysem       ~s
-                   set bracketsem     ~s
-                   set outputlabels   ~s
-                   set outputsem      ~s
-                   set etalongproofs  ~s
-                   set hyposcope      ~s
-                   set substlexsem    ~s
-                   set macroreduce    ~s
-                   set reducesem      ~s
-                   set latexout       ~s
-                   set sr             ~s
-                   set prologmessages ~s
-	           set compactlex     ~s',[UnarySem,BracketSem,OutputLabels,OutputSem,EtaLongProofs,HypoScope,SubstLexSem,MacroReduce,ReduceSem,LatexOut,SR,PrologMessages,CompactLex]),
-       write(''',_),
-       /* interactive debugger */
-       tcl_eval(I,'''),
+       format('       tcl_eval(I,\'set unarysem       ~s\',_),', [UnarySem]),
+       format('       tcl_eval(I,\'set bracketsem     ~s\',_),', [BracketSem]),
+       format('       tcl_eval(I,\'set outputlabels   ~s\',_),', [OutputLabels]),
+       format('       tcl_eval(I,\'set outputsem      ~s\',_),', [OutputSem]),
+       format('       tcl_eval(I,\'set etalongproofs  ~s\',_),', [EtaLongProofs]),
+       format('       tcl_eval(I,\'set hyposcope      ~s\',_),', [HypoScope]),
+       format('       tcl_eval(I,\'set substlexsem    ~s\',_),', [SubstLexSem]),
+       format('       tcl_eval(I,\'set macroreduce    ~s\',_),', [MacroReduce]),
+       format('       tcl_eval(I,\'set reducesem      ~s\',_),', [ReduceSem]),
+       format('       tcl_eval(I,\'set latexout       ~s\',_),', [LatexOut]),
+       format('       tcl_eval(I,\'set sr             ~s\',_),', [SR]),
+       format('       tcl_eval(I,\'set prologmessages ~s\',_),', [PrologMessages]),
+       format('       tcl_eval(I,\'set compactlex     ~s\',_)', [CompactLex]),
+       format('~n       /* interactive debugger */~n', []),
        tcl_eval(I,'set defaultrun',DefaultRun),
        tcl_eval(I,'set defaultrewrite',DefaultRewrite),
        tcl_eval(I,'set interactive',Interactive),
        tcl_eval(I,'set eagerl',EagerL),
        tcl_eval(I,'set showlplabels',ShowLP),
-       format('set interactive    ~s
-                   set defaultrun     ~s
-                   set defaultrewrite ~s
-                   set eagerl         ~s
-                   set showlplabels   ~s',[Interactive,DefaultRun,DefaultRewrite,EagerL,ShowLP]),
-       write(''',_),
-       /* font selections */
-       tcl_eval(I,'''),
+       format('       tcl_eval(I,\'set interactive    ~s\',_),', [Interactive]),
+       format('       tcl_eval(I,\'set defaultrun     ~s\',_),', [DefaultRun]),
+       format('       tcl_eval(I,\'set defaultrewrite ~s\',_),', [DefaultRewrite]),
+       format('       tcl_eval(I,\'set eagerl         ~s\',_),', [EagerL]),
+       format('       tcl_eval(I,\'set showlplabels   ~s\',_),', [ShowLP]),
+       format('~n       /* font selections */~n', []),
        tcl_eval(I,'set pnfontfamily',PnFontFamily),
        tcl_eval(I,'set pnfontweight',PnFontWeight),
        tcl_eval(I,'set pnfontslant',PnFontSlant),
        tcl_eval(I,'set pnfontsize',PnFontSize),
        tcl_eval(I,'set wordfontsize',WordFontSize),
-       format('set pnfontfamily   "~s"
-	           set pnfontweight   ~s
-	           set pnfontslant    ~s
-	           set pnfontsize     ~s
-	           set wordfontsize   ~s
-	           set pnfont   "*-$pnfontfamily-$pnfontweight-$pnfontslant-$pnfontwidth--$pnfontsize-*"
-                   set wordfont "*-$pnfontfamily-$pnfontweight-$pnfontslant-$pnfontwidth--$wordfontsize-*"',[PnFontFamily,PnFontWeight,PnFontSlant,PnFontSize,WordFontSize]),
-       write(''',_).
-
-color_options :-
-       my_tk_interpreter(I),
-       /* color selections */
-       tcl_eval(I,'''),
+       format('       tcl_eval(I,\'set pnfontfamily   "~s"\',_),~n', [PnFontFamily]),
+       format('       tcl_eval(I,\'set pnfontweight   "~s"\',_),~n', [PnFontWeight]),
+       format('       tcl_eval(I,\'set pnfontslant    "~s"\',_),~n', [PnFontSlant]),
+       format('       tcl_eval(I,\'set pnfontsize     "~s"\',_),~n', [PnFontSize]),
+       format('       tcl_eval(I,\'set wordfontsize   "~s"\',_).~2n', [WordFontSize]),
+       write('color_options :-\n\
+       my_tk_interpreter(I),\n\
+       /* color selections */\n'),
        tcl_eval(I,'set wordcolor',WordColor),
        tcl_eval(I,'set grail_bg',GrailBg),
        tcl_eval(I,'set grail_fg',GrailFg),
@@ -1545,40 +1530,38 @@ color_options :-
        tcl_eval(I,'set grail_dfg',GrailDfg),
        tcl_eval(I,'set grail_tc',GrailTc),
        tcl_eval(I,'set grail_sc',GrailSc),
-       format('set wordcolor      ~s
-	           set grail_bg       ~s
-	           set grail_fg       ~s
-	           set grail_abg      ~s
-	           set grail_dfg      ~s
-	           set grail_tc       ~s
-	           set grail_sc       ~s',[WordColor,GrailBg,GrailFg,GrailAbg,GrailDfg,GrailTc,GrailSc]),
-       write(''',_).
-	     
-% ==========================================================
-% Options
-% ==========================================================
-
-% ignore_brackets(?Mode)
-% Often, too many brackets will make the output unreadable. When
-% you are not interested in certain brackets (because they are
-% associative, for example, and more readable in list-like notation) 
-% use this declaration. This will not remove associativity inferences 
+       format('       tcl_eval(I,\'set wordcolor      ~s\',_),~n', [WordColor]),
+       format('       tcl_eval(I,\'set grail_bg       ~s\',_),~n', [GrailBg]),
+       format('       tcl_eval(I,\'set grail_fg       ~s\',_),~n', [GrailFg]),
+       format('       tcl_eval(I,\'set grail_abg      ~s\',_),~n', [GrailAbg]),
+       format('       tcl_eval(I,\'set grail_dfg       ~s\',_),~n', [GrailDfg]),
+       format('       tcl_eval(I,\'set grail_tc       ~s\',_),~n', [GrailTc]),
+       format('       tcl_eval(I,\'set grail_sc       ~s\',_).~2n', [GrailSc]),	     
+       write('% ==========================================================\n\
+% Options\n\
+% ==========================================================\n\
+\n\
+% ignore_brackets(?Mode)\n\
+% Often, too many brackets will make the output unreadable. When\n\
+% you are not interested in certain brackets (because they are\n\
+% associative, for example, and more readable in list-like notation)\n\
+% use this declaration. This will not remove associativity inferences \n\
 % from the derivation.'),nl,
        listing(ignore_brackets/1),nl,
-       write('% output_expl_brackets(?Flag)
-% Setting this flag to ''no'' will not output brackets when the
-% precedence of the operators allows this.
+       write('% output_expl_brackets(?Flag)\n\
+% Setting this flag to ''no'' will not output brackets when the\n\
+% precedence of the operators allows this.\n\
 % For example, this will produce A*B/C instead of (A*B)/C.'),nl,
        listing(output_expl_brackets/1),nl,
        write('% ='),nl,
        listing(output_text_sem/1),nl,
-       write('% boring_rule(?RuleName)
-% sequences of rules declared as boring (by rule name) are
-% abbreviated by writing a series of dots as premiss of the 
-% last ''interesting'' rule. Does not make much sense when
+       write('% boring_rule(?RuleName)\n\
+% sequences of rules declared as boring (by rule name) are\n\
+% abbreviated by writing a series of dots as premiss of the \n\
+% last ''interesting'' rule. Does not make much sense when\n\
 % latex_output_format is set to ''fitch''.'),nl,
        listing(boring_rule/1),nl,
-       write('% logical_rule(?RuleName)
+       write('% logical_rule(?RuleName)\n\
 % identifies the names of the logical rules.'),nl,
        listing(logical_rule/1),nl,
        told,
@@ -1594,8 +1577,8 @@ confirm_exit :-
        tcl_eval(I,'dialog .d {Exit Comfirmation} {Are you sure you want to quit?} questhead 1 Yes No',Answer),
       (Answer = "0" ->
        make_clean,
-       tcl_eval(I,'set runningstate "exiting"
-                   set rewritestate "exiting"
+       tcl_eval(I,'set runningstate "exiting"\n\
+                   set rewritestate "exiting"\n\
                    destroy .',_)
       ;
        true).
@@ -1616,12 +1599,12 @@ no_help :-
 
 save_fragment :-
         my_tk_interpreter(I),
-        tcl_eval(I,'set filename [tk_getSaveFile -initialdir $fragmentdir -defaultextension .pl -title "Save as..." -filetypes {{"Prolog Source" {.pl .pro}} {"All Files" *} }]
-                    if {$filename != {}} {                    
-                       set fragmentdir [file dirname $filename]
-                       prolog retractall(fragment_dir(_))
-                       prolog assert(fragment_dir(''$fragmentdir''))
-                      saveFile $filename
+        tcl_eval(I,'set filename [tk_getSaveFile -initialdir $fragmentdir -defaultextension .pl -title "Save as..." -filetypes {{"Prolog Source" {.pl .pro}} {"All Files" *} }]\n\
+                    if {$filename != {}} {\n\
+                       set fragmentdir [file dirname $filename]\n\
+                       prolog retractall(fragment_dir(_))\n\
+                       prolog assert(fragment_dir(''$fragmentdir''))\n\
+                       saveFile $filename\n\
                     }',_).
 
 save_fragment_as(String) :-
@@ -1697,17 +1680,16 @@ save_fragment_as(String) :-
 
         format('~n% ~60c~n% Examples~n% ~60c~2n',[61,61]),
         format('% = example(String,Formula)~n',[]),
-        findall(S-F,example(S,F),List),
+        findall(S-F,safe_call(example(S,F)),List),
         portray_examples(List),
         listing(query_db),
         told,
         tcl_eval(I,format('set fl_nm_t [file rootname [file tail ~s]]',[String]),_),
-        tcl_eval(I,'
-           if {$fl_nm_t == {}} {
-               set fl_nm_t "grail 2.0"
-           }
-           set fl_nm1 [string toupper [string range $fl_nm_t 0 0]]
-           set fl_nm2 [string tolower [string range $fl_nm_t 1 end]]
+        tcl_eval(I,'if {$fl_nm_t == {}} {\n\
+               set fl_nm_t "grail 2.0"\n\
+           }\n\
+           set fl_nm1 [string toupper [string range $fl_nm_t 0 0]]\n\
+           set fl_nm2 [string tolower [string range $fl_nm_t 1 end]]\n\
            wm title . "$fl_nm1$fl_nm2"',_).
 
 % ====================================================================
@@ -1717,16 +1699,14 @@ save_fragment_as(String) :-
 
 compile_source :-
         my_tk_interpreter(I),
-        tcl_eval(I,'set filename [tk_getOpenFile -initialdir $extensiondir \
-                      -defaultextension .pl -title "Compile Source"\
-                      -filetypes {{"Prolog Source" {.pl .pro}}
-                                  {"Compiled Prolog" {.ql}}
-                                  {"All Files" * }}]
-                    if {$filename != {}} {                    
-                       set extensiondir [file dirname $filename]
-                       prolog retractall(extension_dir(_))
-                       prolog assert(extension_dir(''$extensiondir''))
-                       compileSource $filename
+        tcl_eval(I,'set filename [tk_getOpenFile -initialdir $extensiondir -defaultextension .pl -title "Compile Source" -filetypes {{"Prolog Source" {.pl .pro}}\n\
+                                  {"Compiled Prolog" {.ql}}\n\
+                                  {"All Files" * }}]\n\
+                    if {$filename != {}} {\n\
+                       set extensiondir [file dirname $filename]\n\
+                       prolog retractall(extension_dir(_))\n\
+                       prolog assert(extension_dir(''$extensiondir''))\n\
+                       compileSource $filename\n\
                     }',_).
 
 compile_source(String) :-
@@ -1741,16 +1721,14 @@ compile_source(String) :-
 
 compile_file :-
         my_tk_interpreter(I),
-        tcl_eval(I,'set filename [tk_getOpenFile -initialdir $fragmentdir \
-                      -defaultextension .pl -title "Load Fragment"\
-                      -filetypes {{"Prolog Source" {.pl .pro}}
-                                  {"Compiled Prolog" {.ql}}
-                                  {"All Files" * }}]
-                    if {$filename != {}} {
-                       set fragmentdir [file dirname $filename]
-                       prolog retractall(fragment_dir(_))
-                       prolog assert(fragment_dir(''$fragmentdir''))
-                       compileFile $filename
+        tcl_eval(I,'set filename [tk_getOpenFile -initialdir $fragmentdir -defaultextension .pl -title "Load Fragment" -filetypes {{"Prolog Source" {.pl .pro}}\n\
+                                  {"Compiled Prolog" {.ql}}\n\
+                                  {"All Files" * }}]\n\
+                    if {$filename != {}} {\n\
+                       set fragmentdir [file dirname $filename]\n\
+                       prolog retractall(fragment_dir(_))\n\
+                       prolog assert(fragment_dir(''$fragmentdir''))\n\
+                       compileFile $filename\n\
                     }',_),
        test_lex,
        test_post,
@@ -1770,12 +1748,11 @@ load_new_fragment(String) :-
        retractall(query_db(_,_,_,_)),
        [File],
        tcl_eval(I,format('set fl_nm_t [file rootname [file tail ~s]]',[String]),_),
-       tcl_eval(I,'
-           if {$fl_nm_t == {}} {
-               set fl_nm_t "grail 2.0"
-           }
-           set fl_nm1 [string toupper [string range $fl_nm_t 0 0]]
-           set fl_nm2 [string tolower [string range $fl_nm_t 1 end]]
+       tcl_eval(I,'if {$fl_nm_t == {}} {\n\
+               set fl_nm_t "grail 2.0"\n\
+           }\n\
+           set fl_nm1 [string toupper [string range $fl_nm_t 0 0]]\n\
+           set fl_nm2 [string tolower [string range $fl_nm_t 1 end]]\n\
            wm title . "$fl_nm1$fl_nm2"',_).
 
 % ====================================================================
@@ -1799,14 +1776,10 @@ check_file_id(I,File) :-
        Ver0 is CVer0-48,
        Rel0 is CRel0-48,
      ( Ver0<1 ->
-       tcl_eval(I,format('dialog .d {Old File Format} {File "~w" was\
-                  created by an old version of Grail.} warning 1\
-                  {Continue} {Cancel}',[File]),"0")
+       tcl_eval(I,format('dialog .d {Old File Format} {File "~w" was created by an old version of Grail.} warning 1 {Continue} {Cancel}',[File]),"0")
      ;
        Rel0<0 ->
-       tcl_eval(I,format('dialog .d {Old File Format} {File "~w" was\
-                  created by an old release of Grail.} warning 1\
-                  {Continue} {Cancel}',[File]),"0")
+       tcl_eval(I,format('dialog .d {Old File Format} {File "~w" was created by an old release of Grail.} warning 1 {Continue} {Cancel}',[File]),"0")
      ;
        true
      ),
@@ -1814,9 +1787,7 @@ check_file_id(I,File) :-
 
 check_file_id(I,File) :-
        seen,
-       tcl_eval(I,format('dialog .d {Unknown File Format} {File "~w" is\
-                  in an unknown file format.} warning 1\
-                  {Continue} {Cancel}',[File]),"0"),
+       tcl_eval(I,format('dialog .d {Unknown File Format} {File "~w" is in an unknown file format.} warning 1 {Continue} {Cancel}',[File]),"0"),
        check_predicates(I,File).
 
 check_predicates(I,File) :-
@@ -1865,7 +1836,7 @@ check_tail((T1,T2)) :-
 
 check_tail(T) :-
        functor(T,F,A),
-       member_check(F-A,[findall-3,sort-2,member-2,in-2,'#='-2,'#\='-2,'#<'-2,'#=<'-2,'#>'-2,'#>='-2]).
+       member_check(F-A,[findall-3,sort-2,member-2,in-2,(#=)-2,(#\=)-2,(#<)-2,(#=<)-2,(#>)-2,(#>=)-2]).
 
 print_oc_msgs(I,File,Cs,Os) :-
        print_o_msgs(Os,I,File),
@@ -1875,27 +1846,17 @@ print_o_msgs([],_,_).
 print_o_msgs([O|Os],I,File) :-
        sort([O|Os],Os1),
        list_to_tcl(Os1,Str),
-       tcl_eval(I,format('dialog .d {Unknown Predicates} {File "~w" contains\
-definitions for auxiliary predicates:
-~s.
-
-Though this is probably harmless, these predicates will not be saved\
-with the rest of the fragment.} warning 1\
-                  {Continue} {Cancel}',[File,Str]),"0").
+       tcl_eval(I,format('dialog .d {Unknown Predicates} {File "~w" contains definitions for auxiliary predicates: ~s.\n\
+\n\
+Though this is probably harmless, these predicates will not be saved with the rest of the fragment.} warning 1 {Continue} {Cancel}',[File,Str]),"0").
 
 print_c_msgs([],_,_).
 print_c_msgs([C|Cs],I,File) :-
        sort([C|Cs],Cs1),
        list_to_tcl(Cs1,Str),
-       tcl_eval(I,format('dialog .d {Conditional Predicates} {File "~w"\
-contains predicates with side conditions:
-~s.
-
-Some clauses for the predicates used in the program are not\
-stated as Prolog facts. It is usually a good idea to rewrite\
-these clauses. Proceed with caution.
-} warning 1\
-                  {Continue} {Cancel}',[File,Str]),"0").
+       tcl_eval(I,format('dialog .d {Conditional Predicates} {File "~w" contains predicates with side conditions: ~s.\n\
+\n\
+Some clauses for the predicates used in the program are not stated as Prolog facts. It is usually a good idea to rewrite these clauses. Proceed with caution.} warning 1 {Continue} {Cancel}',[File,Str]),"0").
 
 new_fragment :-
        my_tk_interpreter(I),
@@ -1945,11 +1906,11 @@ update_windows(I) :-
        true
       ;
        update_analysis_window),
-       tcl_eval(I,'if {[winfo exists .lexedit]} {
-                   destroy .lexedit
-                   }
-                   if {[winfo exists .postedit]} {
-                   destroy .postedit
+       tcl_eval(I,'if {[winfo exists .lexedit]} {\n\
+                   destroy .lexedit\n\
+                   }\n\
+                   if {[winfo exists .postedit]} {\n\
+                   destroy .postedit\n\
                    }',_).
 
 % ====================================================================
@@ -2085,20 +2046,20 @@ parse(String,F,File,Num) :-
        ;
 	   true
        ),
-         tcl_eval(I,'set runningstate $defaultrun
-                     set rewritestate $defaultrewrite
-                     if {[winfo exists .stats]} {
-                     wm deiconify .stats
-                     raise .stats
-                     } else {
-                     prolog create_proofnet_window
-                     tkwait visibility .stats
-                     }
-                     .stats.txt configure -text "Initializing..."
-                     .stats.exit configure -state normal
-                     update idletasks
-                     set oldFocus [focus]
-                     grab set .stats
+         tcl_eval(I,'set runningstate $defaultrun\n\
+                     set rewritestate $defaultrewrite\n\
+                     if {[winfo exists .stats]} {\n\
+                     wm deiconify .stats\n\
+                     raise .stats\n\
+                     } else {\n\
+                     prolog create_proofnet_window\n\
+                     tkwait visibility .stats\n\
+                     }\n\
+                     .stats.txt configure -text "Initializing..."\n\
+                     .stats.exit configure -state normal\n\
+                     update idletasks\n\
+                     set oldFocus [focus]\n\
+                     grab set .stats\n\
                      focus .stats',_),
          on_exception(EXC,tex(X,F,File,Num,N),
                               (print(EXC),
@@ -2107,19 +2068,18 @@ parse(String,F,File,Num) :-
                                tell_texout('eg.tex'),nl,
                                told,
                               (N0 = 0 -> N = -1 ; N = N0),
-                               tcl_eval(I,'
-                               grab release .stats
-                               if {[winfo exists .rewrite]} {
-                               grab release .rewrite
-                               .rewrite.exit configure -state disabled
-                               }
-                               set runningstate "done"
-                               set rewritestate "done"
-                               set_cursor left_ptr left_ptr
-                               .stats.c dtag node
-			       .stats.c delete ax
-                               .stats.exit configure -state disabled
-                               .stats.txt configure -text "Aborted"
+                               tcl_eval(I,'grab release .stats\n\
+                               if {[winfo exists .rewrite]} {\n\
+                               grab release .rewrite\n\
+                               .rewrite.exit configure -state disabled\n\
+                               }\n\
+                               set runningstate "done"\n\
+                               set rewritestate "done"\n\
+                               set_cursor left_ptr left_ptr\n\
+                               .stats.c dtag node\n\
+                               .stats.c delete ax\n\
+                               .stats.exit configure -state disabled\n\
+                               .stats.txt configure -text "Aborted"\n\
                                focus $oldFocus',_)
                               )
                      ),
@@ -2137,14 +2097,14 @@ parse(String,F,File,Num) :-
          assert_list(Exs),
          tcl_eval(I,'set yv [lindex [.input.sent yview] 0]',_),
          example_sentences(I),
-         tcl_eval(I,format('.input.sent yview moveto $yv
-                            .input.sent see ~w
-                            .input.sent selection clear 0 end
+         tcl_eval(I,format('.input.sent yview moveto $yv\n\
+                            .input.sent see ~w\n\
+                            .input.sent selection clear 0 end\n\
                             .input.sent selection set ~w',[XN,XN]),_)
        ).
 
 insert_ex([],_,example(A,B,S,F),N,N,[example(A,B,S,F)]).
-insert_ex([example(A1,B1,S1,F1)|Rest0],I,example(A2,B2,S2,F2),N0,N,Rest) :-
+insert_ex([example(_,_,S1,F1)|Rest0],I,example(_,_,S2,F2),N0,N,Rest) :-
      ( F1=F2,
        tokenize_string(S1,WList),
        tokenize_string(S2,WList) ->
@@ -2298,14 +2258,14 @@ initialize :-
        retractall('current macro'(_)),
        retractall('current lex'(_)),
        retractall('options changed'),
-       findall(postulate(X,Y,N),(postulate(X,Y,N),
+       findall(postulate(X,Y,N),(safe_call(postulate(X,Y,N)),
                                  numbervars_post(X,0,_),
                                  numbervars_post(Y,0,_)),EPs),
-       findall(postulate1(X,Y,N),(postulate1(X,Y,N),
+       findall(postulate1(X,Y,N),(safe_call(postulate1(X,Y,N)),
                                   numbervars_post(X,0,_),
                                   numbervars_post(Y,0,_)),DPs),
-       findall(X:Y-Z,(lex(X,Y,Z),numbervars(Z,47,_)),Words0),
-       findall(example(FN,WN,X,Y),example(FN,WN,X,Y),Exs),
+       findall(X:Y-Z,(safe_call(lex(X,Y,Z)),numbervars(Z,47,_)),Words0),
+       findall(example(FN,WN,X,Y),safe_call(example(FN,WN,X,Y)),Exs),
        append(EPs,DPs,Ps),
        sort(Words0,Words),
        assert('current lex'(Words)),
@@ -2385,7 +2345,7 @@ assert_melt_list([X0|Xs]) :-
        assert_melt_list(Xs).
 
 literals(Ls) :-
-       findall(L,(lex(_,T0,_),
+       findall(L,(safe_call(lex(_,T0,_)),
                   macro_expand(T0,T),
                   literals1(T,L)),Ls0),
        sort(Ls0,Ls).
@@ -2409,7 +2369,7 @@ literals1(box(_,A),B) :-
 literals1(lit(A),A).
 
 macros(Ms) :-
-       findall(M,(macro(M,_),
+       findall(M,(safe_call(macro(M,_)),
                   literal(M)),Ms0),
        sort(Ms0,Ms).
 
@@ -2440,8 +2400,7 @@ file_dir_writable(Dir0,File0,Dir,File) :-
        
 change_directory(Dir0,File0,Dir,File) :-
 	my_tk_interpreter(I),
-	tcl_eval(I,format('tk_getSaveFile -title "Select Directory" \
-			 -initialdir {~w} -initialfile [file tail ~w]',[Dir0,File0]),FileS),
+	tcl_eval(I,format('tk_getSaveFile -title "Select Directory" -initialdir {~w} -initialfile [file tail ~w]',[Dir0,File0]),FileS),
         (  FileS = "" ->
 	   Dir = Dir0,
 	   File = File0
@@ -2499,11 +2458,21 @@ numbervars_post(p(_,A,B),N0,N) :-
 
 numbervars_post(_,N,N).
 
+% = safe_call
+%
+
+safe_call(Pred) :-
+	functor(Pred,F,A),
+	functor(Aux,F,A),
+	predicate_property(Aux, _),
+	call(Pred).
+
+
 % = wait for user interaction unlesss the current mode
 %   is nonstop or continue.
 
 wait_running(Interp,Result) :-
-       tcl_eval(Interp,'update
+       tcl_eval(Interp,'update\n\
                         set runningstate',Running),
      ( ( Running = "nonstop"
        ; Running = "continue"
@@ -2513,13 +2482,13 @@ wait_running(Interp,Result) :-
        tcl_eval(Interp,'.stats.exit configure -state disabled',_),
        raise_exception('Cancel')
      ;
-       tcl_eval(Interp,'activate .stats
-                        if {[winfo exists .rewrite]} {
-                        .rewrite.exit configure -state disabled
-                        }
-                        set runningstate "waiting"
-                        tkwait variable runningstate
-                        deactivate .stats
+       tcl_eval(Interp,'activate .stats\n\
+                        if {[winfo exists .rewrite]} {\n\
+                        .rewrite.exit configure -state disabled\n\
+                        }\n\
+                        set runningstate "waiting"\n\
+                        tkwait variable runningstate\n\
+                        deactivate .stats\n\
                         set runningstate',Result),
        ( Result = "cancel" ->
          tcl_eval(Interp,'.stats.exit configure -state disabled',_),
@@ -2540,7 +2509,7 @@ wait_running(Interp,Result) :-
 %   links have been performed.
 
 wait_running1(Interp,Result) :-
-       tcl_eval(Interp,'update
+       tcl_eval(Interp,'update\n\
                         set runningstate',Running),
      ( Running = "nonstop" -> Result = Running
      ;
@@ -2548,13 +2517,13 @@ wait_running1(Interp,Result) :-
        tcl_eval(Interp,'.stats.exit configure -state disabled',_),
        raise_exception('Cancel')
      ;
-       tcl_eval(Interp,'activate .stats
-                        if {[winfo exists .rewrite]} {
-                        .rewrite.exit configure -state disabled
-                        }
-                        set runningstate "waiting"
-                        tkwait variable runningstate
-                        deactivate .stats
+       tcl_eval(Interp,'activate .stats\n\
+                        if {[winfo exists .rewrite]} {\n\
+                        .rewrite.exit configure -state disabled\n\
+                        }\n\
+                        set runningstate "waiting"\n\
+                        tkwait variable runningstate\n\
+                        deactivate .stats\n\
                         set runningstate',Result),
        ( Result = "cancel" ->
          tcl_eval(Interp,'.stats.exit configure -state disabled',_),
@@ -2571,26 +2540,24 @@ wait_running1(Interp,Result) :-
      ).
 
 wait_rewrite(Interp,Result) :-
-       tcl_eval(Interp,'update
+       tcl_eval(Interp,'update\n\
                         set rewritestate',Rewrite),
      ( Rewrite = "cancel" ->
        Result = "cancel",
-       tcl_eval(Interp,'if {[winfo exists .rewrite]} {
-                        .rewrite.exit configure -state disabled
-                        }',_),
+       tcl_eval(Interp,'if {[winfo exists .rewrite]} {.rewrite.exit configure -state disabled}',_),
        raise_exception('Cancel')
      ;
        ( Rewrite = "nonstop"
        ; Rewrite = "continue"
        ) -> Result = Rewrite
      ;
-       tcl_eval(Interp,'activate .rewrite
-                        if {[winfo exists .stats]} {
-                        .stats.exit configure -state disabled
-                        }
-                        set rewritestate "waiting"
-                        tkwait variable rewritestate
-                        deactivate .rewrite
+       tcl_eval(Interp,'activate .rewrite\n\
+                        if {[winfo exists .stats]} {\n\
+                        .stats.exit configure -state disabled\n\
+                        }\n\
+                        set rewritestate "waiting"\n\
+                        tkwait variable rewritestate\n\
+                        deactivate .rewrite\n\
                         .rewrite.c dtag node', _),
        tcl_eval(Interp,'set rewritestate', Result),
        ( Result = "cancel" ->

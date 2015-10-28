@@ -4,10 +4,7 @@
 :- dynamic output_subst_lex_sem/1,output_reduced_sem/1,output_tex_sem/1.
 :- dynamic output_sr/1,collapse_sr/2,show_lp_numbers/1, compact_lex/1.
 
-:- abolish(portray_message).
-user:portray_message(error,_).
-user:portray_message(informational,_).
-user:portray_message(warning,_).
+:- abolish(portray_message/2).
 
 % ==========================================================
 % Menu Options
@@ -16,25 +13,25 @@ user:portray_message(warning,_).
 default_options :-
        my_tk_interpreter(I),
        /* menu variables */
-       tcl_eval(I,'set unarysem 1
-                   set bracketsem 1
-                   set outputlabels 1
-                   set outputsem 0
-                   set etalongproofs 0
-                   set hyposcope 1
-                   set substlexsem 0
-                   set macroreduce 0
-                   set reducesem 0
-                   set latexout nd
-                   set sr explicit
-	           set compactlex 0
-                   set prologmessages quiet',_),
+       tcl_eval(I,'set unarysem 1', _),
+       tcl_eval(I,'set bracketsem 1', _),
+       tcl_eval(I,'set outputlabels 1', _),
+       tcl_eval(I,'set outputsem 0', _),
+       tcl_eval(I,'set etalongproofs 0', _),
+       tcl_eval(I,'set hyposcope 1', _),
+       tcl_eval(I,'set substlexsem 0', _),
+       tcl_eval(I,'set macroreduce 0', _),
+       tcl_eval(I,'set reducesem 0', _),
+       tcl_eval(I,'set latexout nd', _),
+       tcl_eval(I,'set sr explicit', _),
+       tcl_eval(I,'set compactlex 0', _),
+       tcl_eval(I,'set prologmessages quiet',_),
        /* interactive debugger */
-       tcl_eval(I,'set interactive    interactive
-                   set defaultrun     creep
-                   set defaultrewrite creep
-                   set eagerl         none
-                   set showlplabels   0',_).
+       tcl_eval(I,'set interactive    interactive', _),
+       tcl_eval(I,'set defaultrun     creep', _),
+       tcl_eval(I,'set defaultrewrite creep', _),
+       tcl_eval(I,'set eagerl         none', _),
+       tcl_eval(I,'set showlplabels   0',_).
 
 % ==========================================================
 % Options

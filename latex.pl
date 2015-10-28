@@ -24,10 +24,10 @@ latex_output(N,Meaning,Proof,Con,Subst,NV) :-
 % =
 
 latex_nd_output(N,Meaning,rule(Name,A,S,Sem,Rs),Con,Subst,NV) :-
-        format('~n%~n% ~p~n%~n~n{\samepage~n~n\ensuremath{',[Meaning]),
+        format('~n%~n% ~p~n%~n~n{\\samepage~n~n\\ensuremath{',[Meaning]),
         write_nd(Rs,Name,A,S,Sem,Con,Subst,NV,0),
-        format('}~n~n\vspace{4mm}~n~n',[]),
-        format('{\bf ~p. }\mbox{$',[N]),
+        format('}~n~n\\vspace{4mm}~n~n',[]),
+        format('{\bf ~p. }\\mbox{$',[N]),
         write_sem(Meaning),
         format('$}~n}~n~n',[]).
 
@@ -36,7 +36,7 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
         format('~n~*|',[Tab]),
        ( Name=lex,
          compact_lex(yes) ->
-	 write('\infer{'),
+	 write('\\infer{'),
 	 write_sem(Sem,'',' : ',Subst,NV),
 	 write_type(S),
 	 write('}{'),
@@ -48,7 +48,7 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
         write(' \bo ')
        ;
         true),
-        write_label(A,'',' \vdash ',Con),
+        write_label(A,'',' \\vdash ',Con),
         write_sem(Sem,'',' : ',Subst,NV),
         write_type(S),
        (Name=hyp(N),
@@ -61,16 +61,16 @@ write_nd([],Name,A,S,Sem,Con,Subst,NV,Tab0) :-
 write_nd([R|Rs],N,A,S,Sem,Con,Subst,NV,Tab0) :-
         Tab is Tab0 + 3,
        (boring(N,[R|Rs]) ->
-        format('~n~*|\infer{',[Tab]),
+        format('~n~*|\\infer{',[Tab]),
         write_label(A,'',' \vdash ',Con),
         write_sem(Sem,'',' : ',Subst,NV),
         write_type(S),
-        write('}{ \cdots }')
+        write('}{ \\cdots }')
        ;
-        format('~n~*|\infer[',[Tab]),
+        format('~n~*|\\infer[',[Tab]),
         write_nd_rule_name(N),
         write(']{'),
-        write_label(A,'',' \vdash ',Con),
+        write_label(A,'',' \\vdash ',Con),
         write_sem(Sem,'',' : ',Subst,NV),
         write_type(S),
         write('}{'),
@@ -92,7 +92,7 @@ write_nds([R|Rs],rule(N,A,S,Sem,Rs0),Con,Subst,NV,Tab) :-
 
 write_nd_rule_name(Rule) :-
         rule_name(Rule,Name),
-        format('\bo ~p \bc^{',[Name]),
+        format('\\bo ~p \\bc^{',[Name]),
         rule_discharges(Rule,Xs),
         write_indices(Xs),
         write('}').
@@ -124,7 +124,7 @@ latex_fitch_output(N,Meaning,Max,RFL,FH,Con,Subst,NV) :-
      format('~n% ~p~n%~n~n\begin{center}~n\begin{tabular}{rll}~n',[Meaning]),
      reverse(RFL,[],FL),
      write_fitch(FL,[],Max,FH,Con,Subst,NV),
-     format('~n\end{tabular}~n\end{center}~n\vspace{4mm}~n{\bf ~p. }\mbox{$',[N]),
+     format('~n\\end{tabular}~n\\end{center}~n\\vspace{4mm}~n\\textbf{ ~p. }\\mbox{$',[N]),
      write_sem(Meaning),
      format('$~n}~n~n',[]).
 
@@ -182,10 +182,10 @@ write_indent(N0) :-
 
 write_indent1([]) :- 
         !,
-        write('\rule{0ex}{4ex} ').
+        write('\\rule{0ex}{4ex} ').
 write_indent1([X|Xs]) :-
        (X=x -> N = 0 ; N = 3),
-        format('\rule[-1ex]{.1ex}{~pex} \ ',[N]),
+        format('\\rule[-1ex]{.1ex}{~pex} \\ ',[N]),
         write_indent1(Xs).
 
 update_list([],_,[]).
@@ -211,7 +211,7 @@ remove_xs(Xs,Xs).
 
 write_fitch_rule_name(Rule,Rs0,Max,FH) :-
         rule_name(Rule,Name),
-        format('~p \ ',[Name]),
+        format('~p \\ ',[Name]),
         rule_discharges(Rule,Nums),
         number_hypos(Nums,FH,Rs0,Rs),
         write_numbers(Rs,Max).
@@ -253,16 +253,16 @@ rule_name(N,N). % N is a structural rule name
 rule_name1(lex,'Lex').
 rule_name1(uhyp,'Hyp').
 rule_name1(hyp(_),'Hyp').
-rule_name1(dle(_),'\bs E').
+rule_name1(dle(_),'\\bs E').
 rule_name1(dre(_),'/ E').
-rule_name1(dli(_,_),'\bs I').
+rule_name1(dli(_,_),'\\bs I').
 rule_name1(dri(_,_),'/ I').
-rule_name1(pe(_,_,_),'\bullet E').
-rule_name1(pi(_),'\bullet I').
-rule_name1(diae(_,_),'\Diamond E').
-rule_name1(diai(_),'\Diamond I').
-rule_name1(boxe(_),'\Boxd E').
-rule_name1(boxi(_),'\Boxd I').
+rule_name1(pe(_,_,_),'\\bullet E').
+rule_name1(pi(_),'\\bullet I').
+rule_name1(diae(_,_),'\\Diamond E').
+rule_name1(diai(_),'\\Diamond I').
+rule_name1(boxe(_),'\\Boxd E').
+rule_name1(boxi(_),'\\Boxd I').
 
 rule_list([],N,N) :- !.
 rule_list([R|Rs],R0,(N0,N)) :-
@@ -278,9 +278,9 @@ text_output(Sem,Pros) :-
         true).
 
 write_list_of_labels([L|Ls]) :-
-        format('~n\vspace{2mm}~n\begin{tabular}{l}~n',[]),
+        format('~n\\vspace{2mm}~n\\begin{tabular}{l}~n',[]),
         write_list_of_labels1(Ls,L),
-        format('~n\end{tabular}~n~n\vspace{2mm}~n~n',[]).
+        format('~n\\end{tabular}~n~n\\vspace{2mm}~n~n',[]).
 
 write_list_of_labels1([],Label) :-
         write(' $ '),
@@ -310,7 +310,7 @@ write_label(p(I,A,B),N,Con) :-
         write_bo(N),
         binding(A,p(I,A,B),NA),
         write_label(A,NA,Con),
-        write('\circ_{'),
+        write('\\circ_{'),
 	write_mode(I),
 	write('}'),
         binding(B,p(I,A,B),NB),
@@ -319,9 +319,9 @@ write_label(p(I,A,B),N,Con) :-
 
 write_label(zip(I,A),_,Con) :-
         !,
-        write('\langle '),
+        write('\\langle '),
         write_label(A,1,Con),
-        write('\rangle^{'),
+        write('\\rangle^{'),
         write_mode(I),
         write('}').
 
@@ -349,7 +349,7 @@ write_label(_-'$VAR'(N),_,_) :-
         write_pros_var(N).
 
 write_label(_-A,_,_) :-
-        write('\textrm{'),
+        write('\\textrm{'),
        (atom(A) ->
         write_atom(A)
        ;
@@ -360,7 +360,7 @@ write_pros_var(N) :-
         V is N mod 4,
         I is N // 4,
         pros_var_name(V,Name),
-        format('\textrm{~p}_{~p}',[Name,I]).
+        format('\\textrm{~p}_{~p}',[Name,I]).
 
 pros_var_name(0,p).
 pros_var_name(1,q).
@@ -386,7 +386,7 @@ write_type(dl(I,A,B),N) :-
         write_bo(N),
         binding(A,dl(I,A,B),NA),
         write_type(A,NA),
-        write(' \bs_{'),
+        write(' \\bs_{'),
         write_mode(I),
         write('}'),
         binding(B,dl(I,A,B),NB),
@@ -409,7 +409,7 @@ write_type(p(I,A,B),N) :-
         write_bo(N),
         binding(A,p(I,A,B),NA),
         write_type(A,NA),
-        write(' \bullet_{'),
+        write(' \\bullet_{'),
         write_mode(I),
         write('}'),
         binding(B,p(I,A,B),NB),
@@ -417,14 +417,14 @@ write_type(p(I,A,B),N) :-
         write_bc(N).
 write_type(dia(I,A),_) :-
         !,
-        write('\Diamond_{'),
+        write('\\Diamond_{'),
         write_mode(I),
         write('}'),
         binding(A,dia(I,A),NA),
         write_type(A,NA).
 write_type(box(I,A),_) :-
         !,
-        write('\Boxd_{'),
+        write('\\Boxd_{'),
         write_mode(I),
         write('}'),
         binding(A,box(I,A),NA),
@@ -486,25 +486,25 @@ write_sem(T) :-
 
 write_sem(drs(V,C),_) :-
         !,
-        format('\mbox{~n\begin{tabular}{|l|} \hline~n',[]),
+        format('\\mbox{~n\\begin{tabular}{|l|} \\hline~n',[]),
         write_list_of_vars(V),
-        format(' \\ \hline~n',[]),
+        format(' \\ \\hline~n',[]),
         write_list_of_conds(C),
-        format(' \end{tabular}~n}~n',[]).
+        format(' \\end{tabular}~n}~n',[]).
 
 write_sem(merge(A,B),N) :-
         !,
         write_bo(N),
         binding(A,merge(A,B),NA),
         write_sem(A,NA),
-        write(' \circ '),
+        write(' \\circ '),
         binding(B,merge(A,B),NB),
         write_sem(B,NB),
         write_bc(N).
 
 write_sem(exists(X),_) :-
         !,
-        write('\exists '),
+        write('\\exists '),
         write_sem(X).
 
 write_sem(bool(A,C,B),N) :-
@@ -519,7 +519,7 @@ write_sem(bool(A,C,B),N) :-
 
 write_sem(not(X),_) :-
         !,
-        write(' \neg '),
+        write(' \\neg '),
         binding(X,not(X),NX),
         write_sem(X,NX).
 
@@ -535,7 +535,7 @@ write_sem(quant(Q,X,T),N) :-
 write_sem(lambda(X,V),N) :-
         !,
         write_bo(N),
-        write('\lambda '),
+        write('\\lambda '),
         write_sem(X,1),
         write('.'),
         binding(V,lambda(X,V),NV),
@@ -551,51 +551,51 @@ write_sem(appl(X,Y),_) :-
         !,
         write('('),
         write_sem(X,1),
-        write(' \  '),
+        write(' \\  '),
         write_sem(Y,1),
         write(')').
 
 write_sem(pair(X,Y),_) :-
         !,
-        write(' \langle '),
+        write(' \\langle '),
         write_sem(X,1),
         write(' , '),
         write_sem(Y,1),
-        write(' \rangle ').
+        write(' \\rangle ').
 
 write_sem(fst(X),_) :-
         !,
-        write(' \pi^1'),
+        write(' \\pi^1'),
         binding(X,fst(X),NX),
         write_sem(X,NX).
 
 write_sem(snd(X),_) :-
         !,
-        write(' \pi^2'),
+        write(' \\pi^2'),
         binding(X,snd(X),NX),
         write_sem(X,NX).
 
 write_sem(debox(X),_) :-
         !,
-        write(' {}^{\vee} '),
+        write(' {}^{\\vee} '),
         binding(X,debox(X),NX),
         write_sem(X,NX).
 
 write_sem(dedia(X),_) :-
         !,
-        write(' {}^{\cup} '),
+        write(' {}^{\\cup} '),
         binding(X,dedia(X),NX),
         write_sem(X,NX).
 
 write_sem(conbox(X),_) :-
         !,
-        write(' {}^{\wedge} '),
+        write(' {}^{\\wedge} '),
         binding(X,conbox(X),NX),
         write_sem(X,NX).
 
 write_sem(condia(X),_) :-
         !,
-        write(' {}^{\cap} '),
+        write(' {}^{\\cap} '),
         binding(X,condia(X),NX),
         write_sem(X,NX).
 
@@ -607,7 +607,7 @@ write_sem('$VAR'(N),_) :-
         format('~p_{~p}',[Name,I]).
 
 write_sem(Const,_) :-
-        write('\textbf{'),
+        write('\\textbf{'),
        (atom(Const) ->
         write_atom(Const)
        ;
@@ -642,7 +642,7 @@ write_args([A|As],A0) :-
 % =
 
 write_list_of_vars([]) :- 
-        write('$ \ $').
+        write('$ \\ $').
 write_list_of_vars([V|Vs]) :-
         write_list_of_vars(Vs,V).
 
@@ -653,25 +653,25 @@ write_list_of_vars([],V) :-
 write_list_of_vars([V|Vs],V0) :-
         write('$'),
         write_sem(V0),
-        write('\ $'),
+        write('\\ $'),
         write_list_of_vars(Vs,V).
 
 % =
 
 write_list_of_conds([]) :-
-        write('$ \ $ \\ \hline ').
+        write('$ \\ $ \\\\ \\hline ').
 write_list_of_conds([C|Cs]) :-
         write_list_of_conds(Cs,C).
 
 write_list_of_conds([],C) :-
         write('$'),
         write_sem(C),
-        format('$ \\ \hline ',[]).
+        format('$ \\\\ \\hline ',[]).
 
 write_list_of_conds([C|Cs],C0) :-
         write('$'),
         write_sem(C0),
-        format('$ \\~n ',[]),
+        format('$ \\\\~n ',[]),
         write_list_of_conds(Cs,C).
 
 
@@ -723,13 +723,13 @@ binds(merge(_,_),merge(_,_),<,2).
 
 write_quant(exists) :-
      !,
-     write(' \exists ').
+     write(' \\exists ').
 write_quant(forall) :-
      !,
-     write(' \forall ').
+     write(' \\forall ').
 write_quant(iota) :-
      !,
-     write(' \iota ').
+     write(' \\iota ').
 write_quant(X) :-
      write(X).
 
@@ -737,23 +737,23 @@ write_quant(X) :-
 
 write_conn(&) :-
      !,
-     write(' \wedge ').
+     write(' \\wedge ').
 write_conn(\/) :-
      !,
-     write(' \vee ').
+     write(' \\vee ').
 write_conn(->) :-
      !,
-     write(' \rightarrow ').
+     write(' \\rightarrow ').
 write_conn(neq) :-
      !,
-     write(' \neq ').
+     write(' \\neq ').
 write_conn(X) :-
      write(X).
 
 % =
 
 write_atom(At) :-
-      write_atom(At,'\_{}').
+      write_atom(At,'\\_{}').
 
 write_atom(At,Pr) :-
       atom_chars(At,L),
@@ -806,10 +806,7 @@ reverse([X|Xs],Ys,Zs) :-
 postscript :-
 	my_tk_interpreter(I),
 	tex_out_dir(TOD),
-	tcl_eval(I,format('set filename [tk_getSaveFile -initialdir {~w} \
-                      -defaultextension .ps -title "Export Postscript..."\
-                      -filetypes {{"Postscript" {.ps .PS}}
-                                  {"All Files" *} }]',[TOD]),PSS),
+	tcl_eval(I,format('set filename [tk_getSaveFile -initialdir {~w} -defaultextension .ps -title "Export Postscript..." -filetypes {{"Postscript" {.ps .PS}} {"All Files" *} }]',[TOD]),PSS),
       ( PSS \== [] ->
 	append("mv proofs1.ps ",PSS,MVS),
 	name(MV,MVS),
@@ -829,23 +826,23 @@ always_succeed(_).
 
 write_post([]).
 write_post([postulate(X,Y,Z)|Rest]) :-
-         write('\ensuremath{'),
+         write('\\ensuremath{'),
          write_label(Y,1,[]),
-         write('} & \ensuremath{'),
+         write('} & \\ensuremath{'),
          write_label(X,1,[]),
-         format('} & \ensuremath{[~p]} \\~n',[Z]),
+         format('} & \\ensuremath{[~p]} \\\\~n',[Z]),
          write_post(Rest).
 
 write_lex([]).
 write_lex([lex(A,B0,C)|Rest]) :-
-         write('\ensuremath{'),
+         write('\\ensuremath{'),
          write_label(x-A,1,[]),
          write(' : '),
          macro_expand(B0,B),
          write_type(B),
          write(' - '),
          write_sem(C),
-         write('} \\'),nl,
+         write('} \\\\'),nl,
          write_lex(Rest).
 
 
@@ -853,13 +850,9 @@ xdvi_post :-
          findall(postulate(X,Y,Z),(postulate(X,Y,Z),
                                    numbervars(X,0,_)),L),
          tell_texout('post.tex'),
-         format('\documentclass{article}
-               ~n\usepackage{latexsym}         
-               ~n\begin{document}
-               ~n\begin{tabular}{r@{$\ \rightarrow\ $}ll}~n',[]),
+         format('\\documentclass{article}~n\\usepackage{latexsym}~n\\begin{document}~n\\begin{tabular}{r@{$\\ \\rightarrow\\ $}ll}~n',[]),
          write_post(L),
-         format('~n\end{tabular}
-                 ~n\end{document}~n',[]),
+         format('~n\\end{tabular}~n\\end{document}~n',[]),
          told,
          tex_out_dir(Dir),
          working_directory(OldDir,Dir),
@@ -870,15 +863,9 @@ xdvi_lex :-
          findall(lex(A,B,C),(lex(A,B,C),
                              numbervars(C,0,_)),L),
          tell_texout('lex.tex'),
-         format('\documentclass{article}
-               ~n\usepackage{latexsym}
-               ~n\newcommand{\Boxd}{\Box^{\downarrow}}
-               ~n\newcommand{\bs}{\backslash}         
-               ~n\begin{document}
-               ~n\begin{tabular}{l}~n',[]),
+         format('\\documentclass{article}~n\\usepackage{latexsym}~n\\newcommand{\\Boxd}{\\Box^{\\downarrow}}~n\\newcommand{\\bs}{\\backslash}~n\\begin{document}~n\\begin{tabular}{l}~n',[]),
          write_lex(L),
-         format('~n\end{tabular}
-                 ~n\end{document}~n',[]),
+         format('~n\\end{tabular}~n\\end{document}~n',[]),
          told,
          tex_out_dir(Dir),
          working_directory(OldDir,Dir),
@@ -889,15 +876,9 @@ xdvi_sent :-
          findall(example(A,B),(example(A,B0),
                                macro_expand(B0,B)),L),
          tell_texout('exa.tex'),
-         format('\documentclass{article}
-               ~n\usepackage{latexsym}
-               ~n\newcommand{\Boxd}{\Box^{\downarrow}}
-               ~n\newcommand{\bs}{\backslash}         
-               ~n\begin{document}
-               ~n\begin{tabular}{l}~n',[]),
+         format('\\documentclass{article}~n\\usepackage{latexsym}~n\\newcommand{\\Boxd}{\\Box^{\\downarrow}}~n\\newcommand{\\bs}{\\backslash}~n\\begin{document}~n\\begin{tabular}{l}~n',[]),
          write_sent(L),
-         format('~n\end{tabular}
-                 ~n\end{document}~n',[]),
+         format('~n\end{tabular}~n\end{document}~n',[]),
          told,
          tex_out_dir(Dir),
          working_directory(OldDir,Dir),
@@ -922,10 +903,10 @@ example_trim_underscores([X|Xs],[Y|Ys]) :-
        ),
          example_trim_underscores(Xs,Ys).
 
-example_deriv_status([42|R],R,' \not\Rightarrow ') :- !.
-example_deriv_status([63|R],R,' \Rightarrow_{?} ') :- !.
-example_deriv_status([32|R],R,' \Rightarrow ') :- !.
-example_deriv_status(R,R,' \Rightarrow ').
+example_deriv_status([42|R],R,' \\not\\Rightarrow ') :- !.
+example_deriv_status([63|R],R,' \\Rightarrow_{?} ') :- !.
+example_deriv_status([32|R],R,' \\Rightarrow ') :- !.
+example_deriv_status(R,R,' \\Rightarrow ').
 
 make_clean :-
          tex_out_dir(Dir),
@@ -1005,7 +986,7 @@ latex :-
 	( file_exists('eg.tex',read) ->
 	    latex_command(LaTeX),
 	    name(LaTeX,LaTeXS),
-	    append(LaTeXS," proofs1.tex | egrep '^\!.*$'; echo 'LaTeX ready.' &",CommandS),
+	    append(LaTeXS," proofs1.tex | egrep '^\\!.*$'; echo 'LaTeX ready.' &",CommandS),
 	    name(Command,CommandS), 
             always_succeed(shell(Command))
 	;

@@ -25,19 +25,18 @@ create_analysis_window :-
 
 update_analysis_window :-
        my_tk_interpreter(I),
-       tcl_eval(I,'destroy .an.ft.l
-                   destroy .an.ft.r
-                   destroy .an.fb.l
-                   destroy .an.fb.r
-
-                   frame .an.ft.l -bd 2 -relief sunken
-                   frame .an.ft.r -bd 2 -relief sunken
-                   frame .an.fb.l -bd 2 -relief sunken
-                   frame .an.fb.r -bd 2 -relief sunken
-
-                   pack .an.ft.l .an.ft.r -padx 2 -side left -fill both -expand 1
-                   pack .an.fb.l .an.fb.r -padx 2 -side left -fill both -expand 1
-                   ',_),
+       tcl_eval(I,'destroy .an.ft.l\n\
+                   destroy .an.ft.r\n\
+                   destroy .an.fb.l\n\
+                   destroy .an.fb.r\n\
+\n\
+                   frame .an.ft.l -bd 2 -relief sunken\n\
+                   frame .an.ft.r -bd 2 -relief sunken\n\
+                   frame .an.fb.l -bd 2 -relief sunken\n\
+                   frame .an.fb.r -bd 2 -relief sunken\n\
+\n\
+                   pack .an.ft.l .an.ft.r -padx 2 -side left -fill both -expand 1\n\
+                   pack .an.fb.l .an.fb.r -padx 2 -side left -fill both -expand 1',_),
        findall(U,'unary mode'(U) ,Us),
        findall(B,'binary mode'(B),Bs),
        create_checkbuttons(I,Us,Bs).
@@ -174,10 +173,10 @@ display_opt :-
 analysis :-
      garbage_collect,
      my_tk_interpreter(Interp),
-     tcl_eval(Interp,'set analysis_state "running"
-                      set_cursor watch watch                   
-                      .an.bot.cancel config -cursor left_ptr
-                      .an.bot.cancel configure -state normal
+     tcl_eval(Interp,'set analysis_state "running"\n\
+                      set_cursor watch watch\n\
+                      .an.bot.cancel config -cursor left_ptr\n\
+                      .an.bot.cancel configure -state normal\n\
                       grab .an.bot.cancel',_),
      on_exception(EXC,analysis1,
        (format1('~p',[EXC]),
@@ -185,8 +184,8 @@ analysis :-
         tcl_eval(Interp,'.an.bot.status configure -text " Aborted"',_)
        )
             ),
-     tcl_eval(Interp,'set_cursor left_ptr left_ptr
-                      grab release .an.bot.cancel
+     tcl_eval(Interp,'set_cursor left_ptr left_ptr\n\
+                      grab release .an.bot.cancel\n\
                       .an.bot.cancel configure -state disabled',_).
 
 analysis1 :-
@@ -198,7 +197,7 @@ analysis1 :-
      retract_all_decls,
      findall(U,'unary mode'(U),Us),
      findall(B,'binary mode'(B),Bs),
-     findall(p(X,Y,Z),postulate(X,Y,Z),Post2),
+     findall(p(X,Y,Z),safe_call(postulate(X,Y,Z)),Post2),
      sort(Post2,Post3),
      length(Post3,NumPost),
      set_safe_buttons(Us,Bs,Interp),
@@ -229,7 +228,7 @@ check_convergence :-
      my_tk_interpreter(Interp),
      findall(U,'unary mode'(U),Us),
      findall(B,'binary mode'(B),Bs),
-     findall(p(X,Y,Z),postulate(X,Y,Z),Post2),
+     findall(p(X,Y,Z),safe_call(postulate(X,Y,Z)),Post2),
      sort(Post2,Post3),
      length(Post3,NumPost),
      retractall(lazy_dl(_)),
@@ -254,7 +253,7 @@ check_continuity :-
      my_tk_interpreter(Interp),
      findall(U,'unary mode'(U),Us),
      findall(B,'binary mode'(B),Bs),
-     findall(p(X,Y,Z),postulate(X,Y,Z),Post2),
+     findall(p(X,Y,Z),safe_call(postulate(X,Y,Z)),Post2),
      sort(Post2,Post3),
      tcl_eval(Interp,'.an.bot.status configure -text " Analysing Continuity"',_),
      set_safe_cont_buttons(Us,Bs,Interp),
@@ -373,7 +372,7 @@ check_convergence(U,B,NumPost,State) :-
     ;Count >  5000 -> EstTime = 'very, very',Unless='you were going to take a coffee break anyway'
     ;EstTime = very, Unless = 'performace is a real issue'), 
     (Count >  2000 ->
-     tcl_eval(Interp,format('dialog .d {Warning} {~w postulates found with ~w critical pairs. Analysing this set of postulates may take ~w long.
+     tcl_eval(Interp,format('dialog .d {Warning} {~w postulates found with ~w critical pairs. Analysing this set of postulates may take ~w long.\n\
 We recommend using lazy evaluation for all modes unless ~w.} warning 0 {Use lazy evaluation} {Continue analysis}',[NumPost,NumCP,EstTime,Unless]),Answ),
      tcl_eval(Interp,'update',_),
      tcl_eval(Interp,'grab .an.bot.cancel',_),
@@ -432,9 +431,9 @@ check_unary_convergence([U|Us],N0,CPs) :-
 check_u_item_convergence([X-Ys|_],U,Interp,Num) :-
      my_tk_interpreter(Interp),
      tcl_eval(Interp,'update',_),
-     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {
-                             .an.ft.r.ub~d configure -state normal
-                             prolog raise_exception(''Cancel'')
+     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {\n\
+                             .an.ft.r.ub~d configure -state normal\n\
+                             prolog raise_exception(''Cancel'')\n\
                              }',[Num]),_),
      normalize1(unpack(U,X),DF),
      findall(DF1,
@@ -469,9 +468,9 @@ check_binary_convergence([B|Bs],N0,CPs) :-
 check_b_item_convergence([X-Ys|Rest],B,Interp,Num) :-
      atomic_sublabel(X,N-V),
      tcl_eval(Interp,'update',_),
-     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {
-                             .an.ft.r.bb~d configure -state normal
-                             prolog raise_exception(''Cancel'')
+     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {\n\
+                             .an.ft.r.bb~d configure -state normal\n\
+                             prolog raise_exception(''Cancel'')\n\
                              }',[Num]),_),
      normalize1(dl(B,N-V,X),DF),
      findall(DF1,
@@ -486,9 +485,9 @@ check_b_item_convergence([X-Ys|Rest],B,Interp,Num) :-
 check_b_item_convergence([X-Ys|Rest],B,Interp,Num) :-
      atomic_sublabel(X,N-V),
      tcl_eval(Interp,'update',_),
-     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {
-                             .an.ft.r.bb~d configure -state normal
-                             prolog raise_exception(''Cancel'')
+     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {\n\
+                             .an.ft.r.bb~d configure -state normal\n\
+                             prolog raise_exception(''Cancel'')\n\
                              }',[Num]),_),
      normalize1(dr(B,X,N-V),DF),
      findall(DF1,
@@ -514,9 +513,9 @@ check_b_item_convergence([],_,Interp,Num) :-
 check_b_item_convergence0([X-Ys|_],B,Interp,Num) :-
      atomic_sublabel(X,N-V),
      tcl_eval(Interp,'update',_),
-     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {
-                             .an.ft.r.bb~d configure -state normal
-                             prolog raise_exception(''Cancel'')
+     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {\n\
+                             .an.ft.r.bb~d configure -state normal\n\
+                             prolog raise_exception(''Cancel'')\n\
                              }',[Num]),_),
      normalize1(dr(B,X,N-V),DF),
      findall(DF1,
@@ -539,9 +538,9 @@ check_b_item_convergence0([],_,_,_).
 check_b_item_convergence1([X-Ys|_],B,Interp,Num) :-
      atomic_sublabel(X,N-V),
      tcl_eval(Interp,'update',_),
-     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {
-                             .an.ft.r.bb~d configure -state normal
-                             prolog raise_exception(''Cancel'')
+     tcl_eval(Interp,format('if {$analysis_state == "cancel"} {\n\
+                             .an.ft.r.bb~d configure -state normal\n\
+                             prolog raise_exception(''Cancel'')\n\
                              }',[Num]),_),
      normalize1(dl(B,N-V,X),DF),
      findall(DF1,
@@ -631,7 +630,7 @@ normal1(zip(_,A)) :-
 % of X
 
 check_transparency(Us,Bs) :-
-     findall(p(X,Y,Z),postulate(X,Y,Z),Ps0),
+     findall(p(X,Y,Z),safe_call(postulate(X,Y,Z)),Ps0),
      sort(Ps0,Ps),
      numberlist(Ps), 
      my_tk_interpreter(Interp),
@@ -926,11 +925,11 @@ get_item_modes(r(I,A),U0,U,[I|B0],B) :-
 get_item_modes(_,U,U,B,B).
 
 all_lex_labels(List) :-
-     findall(Syn,Syn0^W^Sem^(lex(W,Syn0,Sem),macro_expand(Syn0,Syn)),List0),
+     findall(Syn,(safe_call(lex(_,Syn0,_)),macro_expand(Syn0,Syn)),List0),
      sort(List0,List).
 
 all_exa_labels(List) :-
-     findall(Goal,String^(example(String,Goal0),macro_expand(Goal0,Goal)),List0),
+     findall(Goal,(safe_call(example(_,Goal0)),macro_expand(Goal0,Goal)),List0),
      sort(List0,List).
 
 append_dlists([],L,L).
@@ -942,10 +941,20 @@ all_post_labels(Labels) :-
      findall(X,post(X),Labels0),
      sort(Labels0,Labels).
 
-post(X) :- postulate(X,_,_).
-post(X) :- postulate(_,X,_).
-post(X) :- postulate1(X,_,_).
-post(X) :- postulate1(_,X,_).
+post(X) :-
+	predicate_property(postulate(_,_,_), _),
+    (
+	postulate(X,_,_)
+    ;
+        postulate(_,X,_)
+    ).
+post(X) :-
+	predicate_property(postulate1(_,_,_), _),
+    (
+	postulate1(X,_,_)
+    ;
+        postulate1(_,X,_)
+    ).
 
 safe_rewrite(D,D1) :-
      postulate(D,D1,_).

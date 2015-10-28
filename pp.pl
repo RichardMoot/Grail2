@@ -54,8 +54,7 @@ portray(select_goal(G,_,_)) :- !,nl,write('== select_goal =='),
 portray(select_conjugate(_,[C|_],_)) :- !,nl,write('== select_conj =='),
     nl,print(C).
 
-portray(select_atom(A,vertex(N,_,_),_,_)) :- !,write('== select_atom
-=='),
+portray(select_atom(A,vertex(N,_,_),_,_)) :- !,write('== select_atom=='),
     nl,print(N),write(':'),print(A),nl.
 
 portray(select_conj(A,vertex(N,_,_),_,_)) :- !,write('== select_conj=='), nl, print(N),write(':'),print(A),nl.
