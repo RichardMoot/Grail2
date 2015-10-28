@@ -931,13 +931,13 @@ bind .input.form <Return> {prolog parse_new("$inputtxt","$inputform")}
 bind .input.sent <Double-Button-1> {
        if {[winfo exists %W]} {
        set index [%W index @%x,%y]
-       tkListboxBeginSelect %W $index
+       ::tk::ListboxBeginSelect %W $index
        prolog tex_memo($index)
        }   }
 bind .input.sent <Button-1> { 
        if {[winfo exists %W]} {
        set index [%W index @%x,%y]
-       tkListboxBeginSelect %W $index
+       ::tk::ListboxBeginSelect %W $index
        prolog get_memo($index)
        }   }
 bind .input.sent <Control-Button-1> {

@@ -200,6 +200,9 @@ redraw_db([M0-(Word-Form)|Rest],Interp,Num0,Num,X0,X,Y0,Y,XOff,YOff) :-
      Y2 is min(Y0,Y1),
      redraw_db(Rest,Interp,Num1,Num,X4,X,Y2,Y,XOff,YOff). 
 
+lex(A,B,C, _, _, _) :-
+	lex(A, B, C).
+
 % ============================================================
 % Formula decomposition. Has extra difference list pairs for
 % information necessary to reconstruct natural deduction proof

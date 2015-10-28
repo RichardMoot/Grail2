@@ -264,7 +264,7 @@ num_to_list(N0,X0,X) :-
        num_to_list(N,[Y|X0],X).
 
 mid(X,Y,Z) :-
-       Z is (X+Y)//2.
+       Z is integer((X+Y)/2).
 
 % =
 
@@ -618,7 +618,7 @@ connective(box,Int,Tag,Win,Fill,X,Y,XOff,[L1,D1,R1,U1]) :-
        tcl_eval(Int,format('~w create line ~w ~w ~w ~w -fill ~w -tags {l~w}',[Win,L,D,R,D,Fill,Tag]),_).
 
 connective(dl,Int,Tag,Win,Fill,X,Y,_,[B1,B2,B3,B4]) :-
-       tcl_eval(Int,format('fontWidget ~w create text ~w ~w -font $pnfont -text "\\" -tags {l~w} -fill ~w',[Win,X,Y,Tag,Fill]),Item),
+       tcl_eval(Int,format('fontWidget ~w create text ~w ~w -font $pnfont -text "\\\\" -tags {l~w} -fill ~w',[Win,X,Y,Tag,Fill]),Item),
        tcl_eval(Int,format('~w bbox ~s',[Win,Item]),BS),
        quadruple(Int,BS,B1,B2,B3,B4).
 
@@ -1217,7 +1217,7 @@ label_constr(unpack,Int,Win,Fill,Tags,X,Y,XOff,[L1,D1,R1,U1]) :-
        tcl_eval(Int,format('~w create line ~w ~w ~w ~w -fill ~w -tags {node b1 t~w}',[Win,L,U,R,U,Fill,Tags]),_).
 
 label_constr(dl,Int,Win,Fill,Tags,X,Y,_,[B1,B2,B3,B4]) :-
-       tcl_eval(Int,format('fontWidget ~w create text ~w ~w -font $pnfont -text "\\" -tags {node b2 t~w} -fill ~w',[Win,X,Y,Tags,Fill]),Item),
+       tcl_eval(Int,format('fontWidget ~w create text ~w ~w -font $pnfont -text "\\\\" -tags {node b2 t~w} -fill ~w',[Win,X,Y,Tags,Fill]),Item),
        tcl_eval(Int,format('~w bbox ~s',[Win,Item]),BS),
        quadruple(Int,BS,B1,B2,B3,B4).
 
@@ -2265,7 +2265,7 @@ initialize :-
                                   numbervars_post(X,0,_),
                                   numbervars_post(Y,0,_)),DPs),
        findall(X:Y-Z,(safe_call(lex(X,Y,Z)),numbervars(Z,47,_)),Words0),
-       findall(example(FN,WN,X,Y),safe_call(example(FN,WN,X,Y)),Exs),
+       findall(example(FN,WN,X,Y),safe_examples(FN,WN,X,Y),Exs),
        append(EPs,DPs,Ps),
        sort(Words0,Words),
        assert('current lex'(Words)),
@@ -2280,6 +2280,14 @@ initialize :-
        macros(Ms),
        assert_all(Ms,'current macro'),
        filter_decls(Us,Bs).
+
+safe_examples(0, 0, X, Y) :-
+	predicate_property(example(_,_), _),
+	example(X, Y).
+safe_examples(N, W, X, Y) :-
+	predicate_property(example(_,_,_,_), _),
+	example(N, W, X, Y).
+
 
 filter_decls(Us,Bs) :-
        map_filter(Us,lazy_unpack,LUs),
@@ -2375,12 +2383,12 @@ macros(Ms) :-
 
 file_dir_writable(Dir0,File0,Dir,File) :-
 	my_tk_interpreter(I),
-       ( \+ file_exists(Dir0) ->
+       ( \+ directory_exists(Dir0) ->
 	    tcl_eval(I,'dialog .d {Directory Does Not Exists} {Please specify a directory where you have write permission.} error 0 OK',_),
  	    change_directory(Dir0,File0,Dir1,File1),
 	    file_dir_writable(Dir1,File1,Dir,File)
        ;
-	 \+ file_exists(Dir0,write) ->
+	 \+ directory_exists(Dir0,write) ->
 	    tcl_eval(I,'dialog .d {No Write Permission} {Please specify a directory where you have write permission.} error 0 OK',_),
  	    change_directory(Dir0,File0,Dir1,File1),
 	    file_dir_writable(Dir1,File1,Dir,File)
