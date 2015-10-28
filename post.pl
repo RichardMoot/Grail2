@@ -87,7 +87,7 @@ flip_postulate :-
                    set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 6 end]',NumS),
        NumS \== [],
-       number_chars(Num,NumS),
+       number_codes(Num,NumS),
        flip_item_num(Num,Ps0,Ps,Fill),
        tcl_eval(I,format('set mybbox [.post.c bbox post_bar]\n\
                    set x1 [lindex $mybbox 0]\n\
@@ -162,7 +162,7 @@ edit_postulate :-
                     set itemno_temp [lindex $tags $list_ind]\n\
                     set cur_sel [string range $itemno_temp 6 end]',NumS),
         NumS \== [] ->
-        number_chars(Num,NumS),
+        number_codes(Num,NumS),
         get_item_num(Num,Ps,Post0)
       ;
         Post=postulate(' * ',' * ','')

@@ -37,7 +37,7 @@ tokenize_word([C|Cs],Ds,Ws0,Ws,Word) :-
        Ds=[C|Cs].
 
 special([X|Xs],Ys,Res) :-
-       special_string([Z|Zs],Res),
+       safe_call(special_string([Z|Zs],Res)),
        append([Z|Zs],Ys,[X|Xs]).
 
 % = term tokenization
@@ -110,7 +110,7 @@ tokenize_term([C|Cs],Res0,Term) :-
        D<58 ->
        /* positive integer */
           tokenize_number([D|Ds],Res,NumS,[]),
-          number_chars(Term,NumS),
+          number_codes(Term,NumS),
           trim_spaces(Res,Res0)
      ; C=45,
        trim_spaces(Cs,[D|Ds]),
@@ -118,13 +118,13 @@ tokenize_term([C|Cs],Res0,Term) :-
        D<58 ->
        /* negative integer */
           tokenize_number([D|Ds],Res,NumS,[]),
-          number_chars(Term,[45|NumS]),
+          number_codes(Term,[45|NumS]),
           trim_spaces(Res,Res0)
      ; (C>47,
         C<58) ->
        /* unsigned integer */
           tokenize_number(Cs,Res,NumS,[]),
-          number_chars(Term,[C|NumS]),
+          number_codes(Term,[C|NumS]),
           trim_spaces(Res,Res0)
      ; symbol_char(C) ->
        /* symbols */

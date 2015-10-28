@@ -21,7 +21,7 @@ delete_lex_entry :-
                    set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 8 end]',NumS),
        NumS \== [],
-       number_chars(Num,NumS),
+       number_codes(Num,NumS),
        delete_lex_entry1(Num).
 
 delete_lex_entry1(Num) :-
@@ -58,7 +58,7 @@ edit_lex_entry :-
                    set itemno_temp [lindex $tags $list_ind]\n\
                    set cur_sel [string range $itemno_temp 8 end]',NumS),
        NumS \== [] ->
-       number_chars(Num,NumS),
+       number_codes(Num,NumS),
        get_item_num(Num,Lex,Entry),
        Entry=Pros:Form0-Sem,
        macro_expand(Form0,Form),

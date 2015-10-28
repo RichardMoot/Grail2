@@ -242,7 +242,7 @@ constr(box,Int,Win,Fill,Tags,X,Y,[L1,D1,R1,U1]) :-
        tcl_eval(Int,format('~w create line ~w ~w ~w ~w -tags {node b1 t~w} -fill ~w',[Win,L,D,R,D,Tags,Fill]),_).
 
 constr(dl,Int,Win,Fill,Tags,X,Y,[B1,B2,B3,B4]) :-
-       tcl_eval(Int,format('~w create text ~w ~w -text "\\" -tags {node b2 t~w} -fill ~w',[Win,X,Y,Tags,Fill]),Item),
+       tcl_eval(Int,format('~w create text ~w ~w -text "\\\\" -tags {node b2 t~w} -fill ~w',[Win,X,Y,Tags,Fill]),Item),
        tcl_eval(Int,format('~w bbox ~s',[Win,Item]),BS),
        quadruple(Int,BS,B1,B2,B3,B4).
 
@@ -1610,7 +1610,7 @@ save_fragment :-
 save_fragment_as(String) :-
        my_tk_interpreter(I),
        tcl_eval(I,format('file tail ~s',[String]),TrimmedS),       
-       atom_chars(FilePath,String),
+       name(FilePath,String),
        grail_version(V,R),
        tell(FilePath),
        /* title */
@@ -1710,7 +1710,7 @@ compile_source :-
                     }',_).
 
 compile_source(String) :-
-       atom_chars(File,String),
+       name(File,String),
        compile(File).
 
 % ====================================================================
@@ -1739,10 +1739,10 @@ compile_file :-
 
 load_new_fragment(String) :-
        my_tk_interpreter(I),
-       atom_chars(File,String),
+       name(File,String),
        check_file_id(I,File),
-       abolish(atomic_formula/1),
-       abolish(special_string/2),
+       retractall(atomic_formula(_)),
+       retractall(special_string(_,_)),
        retractall(query_db(_,_)),
        retractall(query_db(_,_,_)),
        retractall(query_db(_,_,_,_)),
@@ -1877,8 +1877,8 @@ new_fragment(I) :-
        abolish(macro/2),
        abolish(lex/3),
        abolish(example/2),
-       abolish(atomic_formula/1),
-       abolish(special_string/2),
+       retractall(atomic_formula(_)),
+       retractall(special_string(_,_)),
        retractall('opt state'(_)),
        assert('opt state'(safe)),
        tcl_eval(I,'.input.sent delete 0 end',_),
@@ -1950,7 +1950,7 @@ get(0 ,L, L).
 get(N0,[C|L0],L) :-
        N0>0,
        N is N0-1,
-       get0(C),
+       get_code(C),
        get(N,L0,L).
 
 delete_tk_interps :-
@@ -2137,10 +2137,10 @@ quadruple(I,List,A,B,C,D) :-
        tcl_eval(I,format('lindex {~s} 1',[List]),B0),
        tcl_eval(I,format('lindex {~s} 2',[List]),C0),
        tcl_eval(I,format('lindex {~s} 3',[List]),D0),
-       number_chars(A,A0),
-       number_chars(B,B0),
-       number_chars(C,C0),
-       number_chars(D,D0).
+       number_codes(A,A0),
+       number_codes(B,B0),
+       number_codes(C,C0),
+       number_codes(D,D0).
 
 member_chk(X,[X|_]) :- 
        !.
@@ -2576,8 +2576,8 @@ wait_rewrite(Interp,Result) :-
 % = Predicates for Tk-less Grail
 	   
 load_fragment(File) :-
-       abolish(atomic_formula/1),
-       abolish(special_string/2),
+       retractall(atomic_formula(_)),
+       retractall(special_string(_,_)),
        fragment_dir(Dir),
        generate_file_name(Dir,File,FFile),
        [FFile],

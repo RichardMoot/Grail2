@@ -756,17 +756,17 @@ write_atom(At) :-
       write_atom(At,'\\_{}').
 
 write_atom(At,Pr) :-
-      atom_chars(At,L),
+      name(At,L),
       write_atom_list(L,Pr).
 
 write_atom_list(L,Pr) :-
       split(L,95,L0,[],L1),
       !,
-      atom_chars(At,L0),
+      name(At,L0),
       format('~p~p',[At,Pr]),
       write_atom_list(L1,Pr).
 write_atom_list(L,_) :-
-      atom_chars(At,L),
+      name(At,L),
       print(At).
 
 split([X|Xs],X,Ys,Ys,Xs) :- !.

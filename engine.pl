@@ -407,7 +407,7 @@ prove([G0|Gs0],G,[H0|Hs0],H,EstL0,Max,XOff) :-
       (  Running = "selected" ->
          /* user selected atomic formula */
          tcl_eval(Interp,'set atomid1',AtomS1),
-         number_chars(Id0,AtomS1),
+         number_codes(Id0,AtomS1),
          select_atom_id(Id0,Atom0,Vertex0,Atom1,Vertex1,
                         [G,G0|Gs0],Gs1,[H,H0|Hs0],Hs1)
       ;
@@ -518,8 +518,8 @@ select_conj_ids([Id1|Ids0],Id0,Atom0,vertex(N,As,Ps),Atom1,vertex(N,Bs,Ps),G0,G,
         tcl_eval(Interp,'activate .stats',_),
         tcl_eval(Interp,'set atomid1',AtomS3),
         tcl_eval(Interp,'set atomid2',AtomS2),
-        number_chars(Id3,AtomS3),
-        number_chars(Id2,AtomS2),
+        number_codes(Id3,AtomS3),
+        number_codes(Id2,AtomS2),
         (Id2=Id0 -> Id=Id3 ; Id=Id2),
 	 Ids1 = [Id1|Ids0]
      ;
@@ -528,8 +528,8 @@ select_conj_ids([Id1|Ids0],Id0,Atom0,vertex(N,As,Ps),Atom1,vertex(N,Bs,Ps),G0,G,
         tcl_eval(Interp,'activate .stats',_),
         tcl_eval(Interp,'set atomid1',AtomS3),
         tcl_eval(Interp,'set atomid2',AtomS2),
-        number_chars(Id3,AtomS3),
-        number_chars(Id2,AtomS2),
+        number_codes(Id3,AtomS3),
+        number_codes(Id2,AtomS2),
         (Id2=Id0 -> Id=Id3 ; Id=Id2),
 	 Ids1 = [Id]
      ;
