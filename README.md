@@ -27,3 +27,5 @@ sicstus -l grail
 this starts the TclTk user interface.
 
 Read the [manual](http://www.labri.fr/perso/moot/man.html) for further information.
+
+The subdirectory `fragments` contains a number of example grammars to play around with.
