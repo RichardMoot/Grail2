@@ -1023,29 +1023,25 @@ add_geometry(C0,Ext,C) :-
 /* xdvi */
 
 xdvi :-
-     retex,
-     tex_out_dir(Dir),
-     current_directory(OldDir,Dir),
-     always_succeed((preview_command(C0,Ext),add_geometry(C0,Ext,C),shell(C))),
-     current_directory(_,OldDir).
+	retex,
+	tex_out_dir(Dir),
+	current_directory(OldDir,Dir),
+	always_succeed((preview_command(C0,Ext),add_geometry(C0,Ext,C),shell(C))),
+	current_directory(_,OldDir).
 
 /* latex */
 
 latex :- 
-      tex_out_dir(Dir),
-      current_directory(OldDir,Dir),
-      absolute_file_name('eg.tex', EG, [relative_to(Dir)]),
-	( file_exists(EG,read) ->
-	    latex_command(LaTeX),
-	    process_create(path(LaTeX), [file('proofs1.tex')], [cwd(Dir)])
-%	    process_create(path(LaTeX), [file('proofs1.tex'), ' |  egrep {^\\!.*$}'])
-%	    name(LaTeX,LaTeXS),
-%	    append(LaTeXS," proofs1.tex | egrep '^\\!.*$'; echo 'LaTeX ready.' &",CommandS),
-%	    name(Command,CommandS),
-%	    format('~N~s~n', [CommandS]),
-%            always_succeed(shell(Command))
-	;
-	    format('~n{Error: Couldn''t open file eg.tex!}~n',[])
-	),
+	tex_out_dir(Dir),
+	current_directory(OldDir,Dir),
+	absolute_file_name('eg.tex', EG, [relative_to(Dir)]),
+  (
+	file_exists(EG,read)
+  ->	  
+        latex_command(LaTeX),
+	process_create(path(LaTeX), [file('proofs1.tex')], [cwd(Dir),stdout(null)])
+  ;
+	format('~n{Error: Couldn''t open file eg.tex!}~n',[])
+  ),
 	current_directory(_,OldDir).
 
