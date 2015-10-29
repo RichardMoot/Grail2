@@ -2302,10 +2302,10 @@ initialize :-
        filter_decls(Us,Bs).
 
 safe_examples(0, 0, X, Y) :-
-	predicate_property(example(_,_), _),
+	once(predicate_property(example(_,_), _)),
 	example(X, Y).
 safe_examples(N, W, X, Y) :-
-	predicate_property(example(_,_,_,_), _),
+	once(predicate_property(example(_,_,_,_), _)),
 	example(N, W, X, Y).
 
 
